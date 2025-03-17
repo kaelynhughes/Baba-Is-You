@@ -20,13 +20,44 @@ public class Collision extends System {
     public boolean canMoveTo(int x, int y){
         for (var entity : entities.values()) {
             var position = entity.get(ecs.Components.Position.class);
-            if (position.getX() == x && position.getY() == y && entity.contains(ecs.Components.Stop.class)) {
+            if (position.getX() == x && position.getY() == y &&(entity.contains(ecs.Components.Push.class) ||entity.contains(ecs.Components.Stop.class)) ) {
                 return false;
 
             }
         }
 
         return true;
+    }
+
+    public ArrayList<Entity> getPushables(int start_x, int start_y, int x_inc, int y_inc, ArrayList<Entity> pushables){
+        for (var entity : entities.values()) {
+            var position = entity.get(ecs.Components.Position.class);
+
+            //There is a stop object that should not be moved into
+            if (position.getX() == start_x+x_inc && position.getY() == start_y + y_inc && entity.contains(ecs.Components.Stop.class)){
+
+                return null;
+
+            }
+
+            //recursivly chains together pushable blocks until a stop collision is found
+            if (position.getX() == start_x+x_inc && position.getY() == start_y + y_inc  && entity.contains(ecs.Components.Push.class)) {
+                if(!pushables.contains(entity)){
+
+
+                    if(getPushables(start_x +x_inc,start_y+y_inc, x_inc, y_inc, pushables) != null){
+                        pushables.add(entity);
+                    } else return null;
+                }
+
+            }
+
+
+        }
+
+        return pushables;
+
+
     }
 
     /**

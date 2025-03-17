@@ -62,6 +62,9 @@ public class GameModel {
         initializeController();
         sysMovement.addController(controller);
         addEntity(createFood(texSquare));
+        addEntity(createFood(texSquare));
+        addEntity(createFood(texSquare));
+        addEntity(createFood(texSquare));
 
 
 
@@ -156,7 +159,7 @@ public class GameModel {
         while (!done) {
             int x = (int) rnd.nextRange(1, GRID_SIZE - 1);
             int y = (int) rnd.nextRange(1, GRID_SIZE - 1);
-            proposed = Food.create(square, x, y);
+            proposed = Rock.create(square, x, y);
             if (!sysCollision.collidesWithAny(proposed)) {
                 done = true;
             }

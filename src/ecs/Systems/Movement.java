@@ -6,6 +6,8 @@ import ecs.Components.PlayerInput;
 import ecs.Components.PlayerControlled;
 import ecs.Entities.Entity;
 
+import java.util.ArrayList;
+
 import static java.lang.System.out;
 
 public class Movement extends System {
@@ -51,9 +53,27 @@ public class Movement extends System {
         int proposed_x = position.getX()+xIncrement;
         int proposed_y = position.getY()+yIncrement;
 
+        //check if the space is free where we want to go
         if (collisionSystem.canMoveTo(proposed_x, proposed_y)) {
             position.update(xIncrement, yIncrement);
+        } else{
+            //if not, check pushable
+            ArrayList<Entity> pushables = collisionSystem.getPushables(position.getX(),position.getY(),xIncrement,yIncrement,new ArrayList<>());
+
+            if(pushables != null){
+                for(var push :  pushables){
+                    var push_position = push.get(Position.class);
+                    push_position.update(xIncrement, yIncrement);
+                }
+                position.update(xIncrement, yIncrement);
+            }
+
+
+
+
+
         }
+        //check if we can push instead
 
     }
 }
