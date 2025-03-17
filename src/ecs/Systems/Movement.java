@@ -1,0 +1,52 @@
+package ecs.Systems;
+
+import ecs.Components.Movable;
+import ecs.Components.Position;
+import ecs.Components.PlayerInput;
+import ecs.Components.PlayerControlled;
+import ecs.Entities.Entity;
+
+import static java.lang.System.out;
+
+public class Movement extends System {
+    Entity controller;
+    public Movement() {
+        super(Movable.class, Position.class, PlayerControlled.class);
+    }
+
+    @Override
+    public void update(double elapsedTime) {
+        int i = 0;
+
+        for (var entity : entities.values()) {
+            moveEntity(entity, elapsedTime);
+            out.println("Times moved - "+i);
+            i++;
+        }
+    }
+    public void addController(Entity controller) {
+        this.controller = controller;
+    }
+
+    private void moveEntity(Entity entity, double elapsedTime) {
+        var input = entity.get(Position.class);
+        var movable = entity.get(Movable.class);
+
+        if (input == null || movable == null) return; // Ensure components exist
+        var movement = controller.get(ecs.Components.PlayerInput.class);
+
+        switch (movement.currentDirection) {
+            case Up -> move(entity, 0, -1);
+            case Down -> move(entity, 0, 1);
+            case Left -> move(entity, -1, 0);
+            case Right -> move(entity, 1, 0);
+        }
+    }
+
+    private void move(Entity entity, int xIncrement, int yIncrement) {
+        var position = entity.get(Position.class);
+        if (position != null) {
+            position.update(xIncrement, yIncrement);
+        }
+    }
+}
