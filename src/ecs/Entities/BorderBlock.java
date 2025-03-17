@@ -11,6 +11,7 @@ public class BorderBlock {
         border.add(new ecs.Components.Appearance(square, Color.RED));
         border.add(new ecs.Components.Position(x,y));
         border.add(new ecs.Components.Collision());
+        border.add(new ecs.Components.Stop());
         border.add(new ecs.Components.Movable(ecs.Components.Movable.Direction.Stopped));
 
         return border;

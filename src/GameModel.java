@@ -33,14 +33,10 @@ public class GameModel {
 
 
         sysRenderer = new Renderer(graphics, GRID_SIZE);
-        sysCollision = new Collision((Entity entity) -> {
-            // Remove the exist food
-            removeThese.add(entity);
-            // Generate another piece of food
-            addThese.add(createFood(texSquare));
-        });
+        sysCollision = new Collision();
 
-        sysMovement = new Movement();
+
+        sysMovement = new Movement(sysCollision);
 
         sysKeyboardInput = new KeyboardInput(graphics.getWindow());
 

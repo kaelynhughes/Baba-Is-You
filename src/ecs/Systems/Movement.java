@@ -10,8 +10,10 @@ import static java.lang.System.out;
 
 public class Movement extends System {
     Entity controller;
-    public Movement() {
+    Collision collisionSystem;
+    public Movement(Collision collisionSystem) {
         super(Movable.class, Position.class, PlayerControlled.class);
+        this.collisionSystem = collisionSystem;
     }
 
     @Override
@@ -45,8 +47,13 @@ public class Movement extends System {
 
     private void move(Entity entity, int xIncrement, int yIncrement) {
         var position = entity.get(Position.class);
-        if (position != null) {
+
+        int proposed_x = position.getX()+xIncrement;
+        int proposed_y = position.getY()+yIncrement;
+
+        if (collisionSystem.canMoveTo(proposed_x, proposed_y)) {
             position.update(xIncrement, yIncrement);
         }
+
     }
 }

@@ -9,16 +9,24 @@ import java.util.Map;
 
 public class Collision extends System {
 
-    public interface IFoodConsumed {
-        void invoke(Entity entity);
+
+    public Collision() {
+        super(ecs.Components.Collision.class,ecs.Components.Position.class);
+
+
+
     }
 
-    private final IFoodConsumed foodConsumed;
+    public boolean canMoveTo(int x, int y){
+        for (var entity : entities.values()) {
+            var position = entity.get(ecs.Components.Position.class);
+            if (position.getX() == x && position.getY() == y && entity.contains(ecs.Components.Stop.class)) {
+                return false;
 
-    public Collision(IFoodConsumed foodConsumed) {
-        super(ecs.Components.Position.class);
+            }
+        }
 
-        this.foodConsumed = foodConsumed;
+        return true;
     }
 
     /**
@@ -63,6 +71,7 @@ public class Collision extends System {
         return false;
     }
 
+
     /**
      * Returns a collection of all the movable entities.
      */
@@ -84,6 +93,7 @@ public class Collision extends System {
      * don't need to look at all the segments in the position, with the
      * exception of the movable itself...a movable can collide with itself.
      */
+
     private boolean collides(Entity a, Entity b) {
         var aPosition = a.get(ecs.Components.Position.class);
         var bPosition = b.get(ecs.Components.Position.class);
