@@ -9,11 +9,17 @@ import java.util.Map;
 
 public class Collision extends System {
 
+    public interface IDestroy {
+        void invoke(Entity entity);
+    }
 
-    public Collision() {
+
+
+    private final IDestroy destroy;
+
+    public Collision(IDestroy destroy) {
         super(ecs.Components.Collision.class,ecs.Components.Position.class);
-
-
+        this.destroy = destroy;
 
     }
 
@@ -75,7 +81,13 @@ public class Collision extends System {
             for (var entityMovable : movable) {
                 if (collides(entity, entityMovable)) {
 
-                        entityMovable.get(ecs.Components.Movable.class).facing = ecs.Components.Movable.Direction.Stopped;
+                        if (entity.contains(ecs.Components.Sink.class)){
+                            destroy.invoke(entity);
+                            destroy.invoke(entityMovable);
+                        }
+                        else if (entity.contains(ecs.Components.Defeat.class)){
+                            destroy.invoke(entityMovable);
+                        }
 
                 }
             }

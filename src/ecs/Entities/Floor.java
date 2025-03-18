@@ -1,9 +1,8 @@
-package ecs.Entities;
-
-import edu.usu.graphics.Texture;
+import ecs.Entities.Entity;
 import edu.usu.graphics.Color;
+import edu.usu.graphics.Texture;
 
-public class Food {
+public class Floor{
 
     public static Entity create(Texture square, int x, int y) {
         var food = new Entity();

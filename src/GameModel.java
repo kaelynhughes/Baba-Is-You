@@ -33,7 +33,12 @@ public class GameModel {
 
 
         sysRenderer = new Renderer(graphics, GRID_SIZE);
-        sysCollision = new Collision();
+        sysCollision = new Collision(
+                //lamba for removing objects
+                (Entity entity) -> {
+                // Remove the sinkable object
+                removeThese.add(entity);
+            });
 
 
         sysMovement = new Movement(sysCollision);
@@ -66,7 +71,7 @@ public class GameModel {
         addEntity(createFood(texSquare));
         addEntity(createFood(texSquare));
 
-
+        addEntity(createWater(texSquare));
 
         var countdown = ecs.Entities.Countdown.create(.1);
         addEntity(countdown);
@@ -160,6 +165,22 @@ public class GameModel {
             int x = (int) rnd.nextRange(1, GRID_SIZE - 1);
             int y = (int) rnd.nextRange(1, GRID_SIZE - 1);
             proposed = Rock.create(square, x, y);
+            if (!sysCollision.collidesWithAny(proposed)) {
+                done = true;
+            }
+        }
+
+        return proposed;
+    }
+    private Entity createWater(Texture square) {
+        MyRandom rnd = new MyRandom();
+        boolean done = false;
+
+        Entity proposed = null;
+        while (!done) {
+            int x = (int) rnd.nextRange(1, GRID_SIZE - 1);
+            int y = (int) rnd.nextRange(1, GRID_SIZE - 1);
+            proposed = Water.create(square, x, y);
             if (!sysCollision.collidesWithAny(proposed)) {
                 done = true;
             }
