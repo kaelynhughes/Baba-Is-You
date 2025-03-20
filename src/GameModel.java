@@ -28,7 +28,15 @@ public class GameModel {
     public void initialize(Graphics2D graphics) {
         var texSquare = new Texture("resources/images/square-outline.png");
 
-
+        var text_baba = new Texture("resources/images/baba_text.png");
+        var flag_text = new Texture("resources/images/flag_text.png");
+        var is_text = new Texture("resources/images/is_text.png");
+        var kill_text = new Texture("resources/images/kill_text.png");
+        var push_text = new Texture("resources/images/push_text.png");
+        var stop_text = new Texture("resources/images/stop_text.png");
+        var you_text = new Texture("resources/images/you_text.png");
+        var wall_text = new Texture("resources/images/wall_text.png");
+        var water_text = new Texture("resources/images/water_text.png");
 
 
 
@@ -57,9 +65,6 @@ public class GameModel {
                     addEntity(baba);
                 });
 
-
-
-
         initializeBorder(texSquare);
         initializeBaba(texSquare);
         initializeBaba(texSquare);
@@ -72,6 +77,14 @@ public class GameModel {
         addEntity(createFood(texSquare));
 
         addEntity(createWater(texSquare));
+
+        addEntity(createWord(text_baba,"BABA"));
+        addEntity(createWord(flag_text,"FLAG"));
+        addEntity(createWord(is_text,"IS"));
+        addEntity(createWord(you_text,"YOU"));
+        addEntity(createWord(push_text,"PUSH"));
+        addEntity(createWord(wall_text,"WALL"));
+        addEntity(createWord(water_text,"WATER"));
 
         var countdown = ecs.Entities.Countdown.create(.1);
         addEntity(countdown);
@@ -181,6 +194,23 @@ public class GameModel {
             int x = (int) rnd.nextRange(1, GRID_SIZE - 1);
             int y = (int) rnd.nextRange(1, GRID_SIZE - 1);
             proposed = Water.create(square, x, y);
+            if (!sysCollision.collidesWithAny(proposed)) {
+                done = true;
+            }
+        }
+
+        return proposed;
+    }
+
+    private Entity createWord(Texture square,String text) {
+        MyRandom rnd = new MyRandom();
+        boolean done = false;
+
+        Entity proposed = null;
+        while (!done) {
+            int x = (int) rnd.nextRange(1, GRID_SIZE - 1);
+            int y = (int) rnd.nextRange(1, GRID_SIZE - 1);
+            proposed = Word.create(square, x, y,text);
             if (!sysCollision.collidesWithAny(proposed)) {
                 done = true;
             }
