@@ -17,22 +17,43 @@ public class ReadRules extends System {
     // Creating an empty Set
     HashSet<String> active_rules;
     HashSet<String> valid_rules;
-    String[] objects = {"BABA","ROCK","FLAG","WATER","WALL","LAVA","FLOOR","GRASS","HEDGE"};
-    String[] components = {"STOP","PUSH","DEFEAT","WIN","SINK","YOU"};
+    String[] objects = {"BABA", "ROCK", "FLAG", "WATER", "WALL", "LAVA", "FLOOR", "GRASS", "HEDGE"};
+    String[] components = {"STOP", "PUSH", "DEFEAT", "WIN", "SINK", "YOU"};
 
-    HashMap<String,Component> objectsTable;
-    HashMap<String,Component> componentsTable;
-
+    HashMap<String, Component> objectsTable;
+    HashMap<String, Component> componentsTable;
+    private HashMap<String, HashSet<Class<? extends Component>>> objectComponentsTable;
+    ArrayList<Class>universalComponents;
     Movement sysMovement;
 
     GameObjectRegistry registry;
+
     public ReadRules(Movement sysMovement) {
         super(Object.class);
 
+
+        objectComponentsTable = new HashMap<>();
+        universalComponents = new ArrayList<>();
+        // Initialize objects with empty component sets
+        for (String obj : objects) {
+            objectComponentsTable.put(obj, new HashSet<>());
+        }
+
+
+        //create list of components that CANNOT be removed
+        universalComponents.add(ecs.Components.Object.class);
+        universalComponents.add(ecs.Components.Position.class);
+        universalComponents.add(ecs.Components.Appearance.class);
+        universalComponents.add(ecs.Components.Movable.class);
+        universalComponents.add(ecs.Components.Collision.class);
+        universalComponents.add(ecs.Components.Tag.class);
+
+
+
         this.sysMovement = sysMovement;
-        active_rules =new HashSet<String>();
-        valid_rules =new HashSet<String>();
-        componentsTable =new HashMap<String,Component>();
+        active_rules = new HashSet<String>();
+        valid_rules = new HashSet<String>();
+        componentsTable = new HashMap<String, Component>();
         componentsTable.put("STOP", new ecs.Components.Stop());
         componentsTable.put("PUSH", new ecs.Components.Push());
         componentsTable.put("DEFEAT", new ecs.Components.Defeat());
@@ -41,18 +62,18 @@ public class ReadRules extends System {
         componentsTable.put("YOU", new ecs.Components.PlayerControlled());
 
         //ADD YOU RULES
-        for(String obj : objects){
-            for(String comp : components)
+        for (String obj : objects) {
+            for (String comp : components)
 
-                valid_rules.add(obj+"-IS-"+comp);
+                valid_rules.add(obj + "-IS-" + comp);
         }
 
         //ADD RULES TO CHANGE OBJECTS INTO OTHER OBJECTS
-        for(String becomes : objects){
-            for(String obj : objects)
+        for (String becomes : objects) {
+            for (String obj : objects)
 
-                if(!obj.equals(becomes)){
-                    valid_rules.add(obj+"-IS-"+becomes);
+                if (!obj.equals(becomes)) {
+                    valid_rules.add(obj + "-IS-" + becomes);
 
                 }
         }
@@ -60,13 +81,30 @@ public class ReadRules extends System {
 
     @Override
     public void update(double elapsedTime) {
-        int i = 0;
+        HashSet<String> new_active_rules = new HashSet<>();
 
         for (var entity : entities.values()) {
-            if(entity.contains(Text.class)){
-                checkForRules(entity, elapsedTime);
+            if (entity.contains(Text.class)) {
+                List<String> rules = checkAround(entity);
+                for (String rule : rules) {
+                    if (valid_rules.contains(rule)) {
+                        new_active_rules.add(rule);
+                        if (!active_rules.contains(rule)) {
+                            active_rules.add(rule);
+                            apply_rule(rule);
+                        }
+                    }
+                }
             }
-            i++;
+        }
+
+        // Find and remove outdated rules
+        HashSet<String> removed_rules = new HashSet<>(active_rules);
+        removed_rules.removeAll(new_active_rules); // Rules that were active but are no longer valid
+
+        for (String rule : removed_rules) {
+            remove_rule(rule);
+            active_rules.remove(rule);
         }
     }
 
@@ -75,12 +113,12 @@ public class ReadRules extends System {
 
 
         var word = entity.get(Text.class);
-        if(Objects.equals(word.text, "IS")){
+        if (Objects.equals(word.text, "IS")) {
 
             List<String> rules = checkAround(entity);
-            for(String rule : rules){
+            for (String rule : rules) {
 
-                if(valid_rules.contains(rule) && !active_rules.contains(rule)){
+                if (valid_rules.contains(rule) && !active_rules.contains(rule)) {
                     active_rules.add(rule);
                     apply_rule(rule);
 
@@ -99,29 +137,29 @@ public class ReadRules extends System {
 
         for (var entity : entities.values()) {
 
-            if(!entity.contains(Text.class)) continue;
+            if (!entity.contains(Text.class)) continue;
 
             var pos = entity.get(Position.class);
             var text = entity.get(Text.class);
 
             //find vertical rule
-            if(pos.getY() -1 == target_y && pos.getX() == target_x ){
+            if (pos.getY() - 1 == target_y && pos.getX() == target_x) {
                 //word is above
                 col_rule.append(text.text);
 
-            }else if (pos.getY() +1 == target_y && pos.getX() == target_x ){
+            } else if (pos.getY() + 1 == target_y && pos.getX() == target_x) {
                 //word is below
 
                 col_rule.insert(0, text.text);
             }
 
             //find horizontal rule
-            if(pos.getY()== target_y && pos.getX()-1 == target_x ){
+            if (pos.getY() == target_y && pos.getX() - 1 == target_x) {
                 //word is to left
 
                 row_rule.append(text.text);
 
-            }else if (pos.getY() == target_y && pos.getX() + 1== target_x){
+            } else if (pos.getY() == target_y && pos.getX() + 1 == target_x) {
                 //word is to right
                 row_rule.insert(0, text.text);
             }
@@ -137,114 +175,118 @@ public class ReadRules extends System {
         return rules;
     }
 
-    private void apply_rule(String rule){
-
+    // Called when a new rule is detected
+    private void apply_rule(String rule) {
         out.println(rule);
-        String[] rules = rule.split("-");
+        String[] parts = rule.split("-");
 
-        String objectName = rules[0];  // e.g., "BABA"
-        String action = rules[1];      // Always "IS"
-        String newType = rules[2];     // e.g., "ROCK" or "PUSH"
+        String objectName = parts[0];  // e.g., "BABA"
+        String action = parts[1];      // Always "IS"
+        String newType = parts[2];     // e.g., "ROCK" or "PUSH"
 
-        boolean addComponent = false;
-        if(Arrays.asList(components).contains(newType)){
-            addComponent = true;
+        // Case 1: Object gains a new component (e.g., "BABA-IS-PUSH")
+
+
+        String transformation = "";
+        if (Arrays.asList(components).contains(newType)) {
+            Class<? extends Component> componentClass = componentsTable.get(newType).getClass();
+            objectComponentsTable.get(objectName).add(componentClass);
+        }
+        // Case 2: Object transforms into another object (e.g., "BABA-IS-ROCK")
+        else {
+
+            transformation = newType;
+            HashSet<Class<? extends Component>> newComponents = new HashSet<>(objectComponentsTable.get(newType));
+            objectComponentsTable.put(objectName, newComponents);
         }
 
-        if(addComponent){
+        updateEntities(objectName,transformation);
+    }
 
-            for(Entity entity : entities.values()){
+    // Applies changes to all entities in the game
+    private void updateEntities(String target_objects, String transformation) {
+        for (Entity entity : entities.values()) {
+            if (entity.contains(ecs.Components.Tag.class)) {
+                var tag = entity.get(ecs.Components.Tag.class);
+                String objectType = tag.name;
 
-                if(entity.contains(ecs.Components.Tag.class)){
+                out.println("NOW WORKING WITH -- "+objectType);
+                if (!objectComponentsTable.containsKey(objectType)) continue;
 
-                    var tag = entity.get(ecs.Components.Tag.class);
+                HashSet<Class<? extends Component>> requiredComponents = objectComponentsTable.get(objectType);
+                Set<Class<? extends Component>> currentComponents = entity.getComponents().keySet();
 
-                    if(Objects.equals(tag.name, objectName)){
-                        if(!entity.contains(componentsTable.get(newType).getClass())){
-                            entity.add(componentsTable.get(newType));
-                            if(newType.equals("YOU") || newType.equals("PUSH")) sysMovement.add(entity);
+                // Add missing components
+                for (Class<? extends Component> compClass : requiredComponents) {
+                    if (!currentComponents.contains(compClass)) {
+                        try {
+                            entity.add(compClass.getDeclaredConstructor().newInstance());
+                            if(compClass == PlayerControlled.class){
+                                sysMovement.add(entity);
+                            }
+
+                            out.println("Added: " + compClass.getSimpleName() + " to " + objectType);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                 }
-            }
 
-        }
-        //perform Transformation
-        else{
+                // Get a copy of the components list to avoid modification errors
+                List<Component> allComps = new ArrayList<>(entity.getComponents().values());
 
-            ArrayList<Component> comps_to_add = new ArrayList<>();
+                // Remove extra components
+                for (Component comp : allComps) {
 
-            //finds entity with all classes we need to add
-            for(Entity entity : entities.values()){
+                    if (!requiredComponents.contains(comp.getClass())) {
+                        if (!universalComponents.contains(comp.getClass())) {
+                            entity.remove(comp.getClass());
 
-                //we have found the class and can now begin taking all components
-                if(entity.contains(ecs.Components.Tag.class)){
-                    var newTag = entity.get(ecs.Components.Tag.class);
+                            if(comp.getClass() == ecs.Components.PlayerControlled.class) {sysMovement.remove(entity.getId());}
 
-                    if(newTag.name.equals(newType)){
-
-                        comps_to_add = new ArrayList<>(entity.getComponents().values());
-                        break;
+                            out.println("Removed: " + comp.getClass().getSimpleName() + " from " + objectType);
+                        }
                     }
                 }
-            }
 
-            out.println(comps_to_add);
+                if (entity.contains(Appearance.class) && !transformation.isEmpty() && Objects.equals(objectType, target_objects)) {
+                    var appearance = entity.get(Appearance.class);
+                    var newTag = entity.get(Tag.class);
+                    GameObjectRegistry.GameObjectInfo info = GameObjectRegistry.getObjectInfo(transformation);
 
-            //TODO: FIX THIS vvvvvv
-            for(Entity entity : entities.values()){
-                out.println("---");
-                if(entity.contains(ecs.Components.Tag.class)){
+                    newTag.name = transformation;
+                    // Fetch new appearance details from registry
+                    Texture newTexture = new Texture(info.getImagePath()); // Get texture for the new type
+                    Color newColor = info.getColor(); // Get color for the new type
 
-                    var tag = entity.get(ecs.Components.Tag.class);
+                    // Apply the new appearance
+                    appearance.image = newTexture;
+                    appearance.color = newColor;
 
-                    if(Objects.equals(tag.name, objectName)){
-                        out.println("CURRENT ENTITY - "+tag.name);
-                        var appearance = entity.get(ecs.Components.Appearance.class);
-                        GameObjectRegistry.GameObjectInfo obj_info = GameObjectRegistry.getObjectInfo(newType);
+                    out.println("Updated Appearance for " + objectType + " -> Texture: " + newTexture + ", Color: " + newColor);
 
-                        //change image here;
-                        appearance.image = new Texture(obj_info.getImagePath());
-                        //change color here:
-                        appearance.color = obj_info.getColor();
-
-                        out.println("-- TARGET ENTITY (BEFORE ADD) --");
-                        out.println(entity.getComponents().values());
-
-                        //adds necassary components
-                        for(Component comp : comps_to_add){
-                            if(!entity.contains(comp.getClass())){
-                                entity.add(comp);
-                                out.println("ADDED - "+ comp);
-                            }
-                        }
-
-                        out.println("-- TARGET ENTITY (AFTER ADD) --");
-                        out.println(entity.getComponents().values());
-                        out.println("-- LOOP --");
-                        //removes necassary components
-                        out.println(comps_to_add);
-
-
-                        for(Component comp : comps_to_add){
-                            boolean shouldRemove = true;
-                            for (Component newComp : comps_to_add) {
-                                if (comp.getClass() == newComp.getClass()) {
-                                    shouldRemove = false;
-                                    break;
-                                }
-                            }
-                            if (shouldRemove) {
-                                entity.remove(comp.getClass());
-                                out.println("REMOVED - " + comp);
-                            }
-                        }
-
-                        tag.name = newType;
-
-                    }
                 }
             }
         }
+    }
+    private void remove_rule(String rule) {
+        out.println("Removing rule: " + rule);
+        String[] parts = rule.split("-");
+
+        String objectName = parts[0];
+        String action = parts[1];  // Always "IS"
+        String newType = parts[2];
+
+        // Case 1: Removing a component rule (e.g., "BABA-IS-PUSH")
+        if (Arrays.asList(components).contains(newType)) {
+            Class<? extends Component> componentClass = componentsTable.get(newType).getClass();
+            objectComponentsTable.get(objectName).remove(componentClass);
+        }
+        // Case 2: Reverting object transformation (e.g., "BABA-IS-ROCK")
+        else {
+            objectComponentsTable.get(objectName).clear();
+        }
+
+        updateEntities(objectName, ""); // Reset entities of this type
     }
 }

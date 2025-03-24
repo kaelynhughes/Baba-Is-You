@@ -1,5 +1,6 @@
 import ecs.Components.Movable;
 import ecs.Entities.*;
+import ecs.GameObjectRegistry;
 import ecs.Systems.*;
 import ecs.Systems.Countdown;
 import ecs.Systems.KeyboardInput;
@@ -86,8 +87,11 @@ public class GameModel {
         addEntity(createWord(is_text,"IS",7,2));
         addEntity(createWord(you_text,"YOU",4,2));
         addEntity(createWord(stop_text,"STOP",4,3));
-        addEntity(createWord(push_text,"PUSH",6,3));
+        addEntity(createWord(push_text,"PUSH",10,3));
         addEntity(createWord(flag_text,"FLAG",4,7));
+        addEntity(createWord(wall_text,"WALL",6,3));
+        addEntity(createWord(is_text,"IS",6,4));
+        addEntity(createWord(stop_text,"STOP",6,5));
 
         initializeController();
         sysMovement.addController(controller);
@@ -96,6 +100,17 @@ public class GameModel {
         addEntity(createObject("BABA",texSquare,Color.GREEN,3,3));
         addEntity(createObject("ROCK",rockText,Color.RED,10,3));
         addEntity(createObject("FLAG",flagText,Color.YELLOW,6,10));
+        GameObjectRegistry.GameObjectInfo wall = GameObjectRegistry.getObjectInfo("WALL");
+
+
+        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),5,11));
+        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),6,11));
+        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),7,11));
+        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),8,11));
+        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),9,11));
+        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),10,11));
+
+
 
 
         var countdown = ecs.Entities.Countdown.create(.1);
