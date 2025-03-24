@@ -11,14 +11,15 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT;
 public class Lava {
     public static Entity create(Texture square, int x, int y){
 
-        var water = new Entity();
+        var lava = new Entity();
 
-        water.add(new ecs.Components.Appearance(square, new Color(1.0f, 0.5f, 0.0f)));
-        water.add(new ecs.Components.Position(x, y));
-        water.add(new ecs.Components.Collision());
-        water.add(new ecs.Components.Sink());
+        lava.add(new ecs.Components.Appearance(square, new Color(1.0f, 0.5f, 0.0f)));
+        lava.add(new ecs.Components.Position(x, y));
+        lava.add(new ecs.Components.Collision());
+        lava.add(new ecs.Components.Object());
 
-        return water;
+
+        return lava;
     }
 
 }

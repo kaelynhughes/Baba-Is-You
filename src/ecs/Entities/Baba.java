@@ -17,9 +17,7 @@ public class Baba {
         baba.add(new ecs.Components.Appearance(square, Color.PURPLE));
         baba.add(new ecs.Components.Position(x, y));
         baba.add(new ecs.Components.Collision());
-        baba.add(new ecs.Components.PlayerControlled());
-        baba.add(new ecs.Components.Stop());
-        baba.add(new ecs.Components.Movable(ecs.Components.Movable.Direction.Stopped));
+        baba.add(new ecs.Components.Object());
 
         return baba;
     }

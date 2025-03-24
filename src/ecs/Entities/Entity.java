@@ -31,6 +31,10 @@ public final class Entity {
         this.components.put(component.getClass(), component);
     }
 
+    public Map<Class<? extends Component>, Component> getComponents(){
+        return components;
+    }
+
     public <TComponent extends Component> void remove(Class<TComponent> type) {
         this.components.remove(type);
     }

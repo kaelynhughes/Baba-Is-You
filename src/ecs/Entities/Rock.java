@@ -12,15 +12,14 @@ public class Rock {
     public static Entity create(Texture square, int x, int y){
 
 
-        var baba = new Entity();
+        var rock = new Entity();
 
-        baba.add(new ecs.Components.Appearance(square, Color.YELLOW));
-        baba.add(new ecs.Components.Position(x, y));
-        baba.add(new ecs.Components.Collision());
-        baba.add(new ecs.Components.Push());
-        baba.add(new ecs.Components.Movable(ecs.Components.Movable.Direction.Stopped));
+        rock.add(new ecs.Components.Appearance(square, Color.YELLOW));
+        rock.add(new ecs.Components.Position(x, y));
+        rock.add(new ecs.Components.Collision());
+        rock.add(new ecs.Components.Object());
 
-        return baba;
+        return rock;
     }
 
 }

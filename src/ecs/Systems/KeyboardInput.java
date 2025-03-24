@@ -24,8 +24,6 @@ public class KeyboardInput extends System {
         for (var entity : entities.values()) {
             //out.println("CONTROLLER ENTITES - "+i);
 
-            //out.println(entity+" "+i);
-            out.println(pressed);
             i +=1;
 
             var input = entity.get(ecs.Components.KeyboardControlled.class);

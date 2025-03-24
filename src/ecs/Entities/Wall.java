@@ -10,7 +10,7 @@ public class Wall {
         wall.add(new ecs.Components.Appearance(square, Color.GREEN));
         wall.add(new ecs.Components.Position(x,y));
         wall.add(new ecs.Components.Collision());
-        wall.add(new ecs.Components.Stop());
+        wall.add(new ecs.Components.Object());
         return wall;
     }
 }

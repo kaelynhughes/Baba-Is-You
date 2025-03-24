@@ -17,7 +17,6 @@ public class Water {
         water.add(new ecs.Components.Appearance(square, Color.CORNFLOWER_BLUE));
         water.add(new ecs.Components.Position(x, y));
         water.add(new ecs.Components.Collision());
-        water.add(new ecs.Components.Sink());
 
         return water;
     }

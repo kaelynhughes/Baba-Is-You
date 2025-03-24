@@ -17,7 +17,10 @@ public class Word {
         word.add(new ecs.Components.Appearance(square, Color.WHITE));
         word.add(new ecs.Components.Position(x, y));
         word.add(new ecs.Components.Collision());
+
         word.add(new ecs.Components.Push());
+        word.add(new ecs.Components.Text(text));
+        word.add(new ecs.Components.Object());
         word.add(new ecs.Components.Movable(ecs.Components.Movable.Direction.Stopped));
 
         return word;

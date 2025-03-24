@@ -17,7 +17,7 @@ public class Flag {
         flag.add(new ecs.Components.Appearance(square, Color.YELLOW));
         flag.add(new ecs.Components.Position(x, y));
         flag.add(new ecs.Components.Collision());
-
+        flag.add(new ecs.Components.Object());
 
         return flag;
     }

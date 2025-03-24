@@ -21,13 +21,14 @@ public class Movement extends System {
     @Override
     public void update(double elapsedTime) {
         int i = 0;
-
         for (var entity : entities.values()) {
             moveEntity(entity, elapsedTime);
-            out.println("Times moved - "+i);
+
             i++;
         }
     }
+
+
     public void addController(Entity controller) {
         this.controller = controller;
     }

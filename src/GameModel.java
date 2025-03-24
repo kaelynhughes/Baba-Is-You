@@ -24,19 +24,24 @@ public class GameModel {
     private ecs.Systems.Movement sysMovement;
     private ecs.Systems.KeyboardInput sysKeyboardInput;
     private ecs.Systems.Countdown sysCountdown;
+    private ecs.Systems.ReadRules sysReadRules;
+
 
     public void initialize(Graphics2D graphics) {
         var texSquare = new Texture("resources/images/square-outline.png");
+        var rockText = new Texture("resources/images/rock.png");
+        var flagText = new Texture("resources/images/flag.png");
+        var text_baba = new Texture("resources/images/word-baba.png");
+        var flag_text = new Texture("resources/images/word-flag.png");
+        var is_text = new Texture("resources/images/word-is.png");
+        var kill_text = new Texture("resources/images/word-kill.png");
+        var push_text = new Texture("resources/images/word-push.png");
+        var stop_text = new Texture("resources/images/word-stop.png");
+        var you_text = new Texture("resources/images/word-you.png");
+        var wall_text = new Texture("resources/images/word-wall.png");
+        var water_text = new Texture("resources/images/word-water.png");
 
-        var text_baba = new Texture("resources/images/baba_text.png");
-        var flag_text = new Texture("resources/images/flag_text.png");
-        var is_text = new Texture("resources/images/is_text.png");
-        var kill_text = new Texture("resources/images/kill_text.png");
-        var push_text = new Texture("resources/images/push_text.png");
-        var stop_text = new Texture("resources/images/stop_text.png");
-        var you_text = new Texture("resources/images/you_text.png");
-        var wall_text = new Texture("resources/images/wall_text.png");
-        var water_text = new Texture("resources/images/water_text.png");
+        var rock_text = new Texture("resources/images/word-rock.png");
 
 
 
@@ -50,6 +55,7 @@ public class GameModel {
 
 
         sysMovement = new Movement(sysCollision);
+        sysReadRules = new ReadRules(sysMovement);
 
         sysKeyboardInput = new KeyboardInput(graphics.getWindow());
 
@@ -60,31 +66,37 @@ public class GameModel {
                     //ecs.Entities.Snake.enableControls(snake);
                     //ecs.Entities.Baba.enableControls(baba);
                     //var movable = snake.get(ecs.Components.Movable.class);
-                    var movable = baba.get(ecs.Components.Movable.class);
-                    movable.facing = Movable.Direction.Stopped;
-                    addEntity(baba);
+                    //var movable = baba.get(ecs.Components.Movable.class);
+                    //movable.facing = Movable.Direction.Stopped;
+                    //addEntity(baba);
                 });
+
+
+        //entites should be spawned in based on file input here
 
         initializeBorder(texSquare);
         initializeBaba(texSquare);
         initializeBaba(texSquare);
         initializeBaba(texSquare);
+
+        addEntity(createWord(text_baba,"BABA",2,2));
+        addEntity(createWord(rock_text,"ROCK",4,11));
+        addEntity(createWord(is_text,"IS",3,2));
+        addEntity(createWord(is_text,"IS",5,2));
+        addEntity(createWord(is_text,"IS",7,2));
+        addEntity(createWord(you_text,"YOU",4,2));
+        addEntity(createWord(stop_text,"STOP",4,3));
+        addEntity(createWord(push_text,"PUSH",6,3));
+        addEntity(createWord(flag_text,"FLAG",4,7));
+
         initializeController();
         sysMovement.addController(controller);
-        addEntity(createFood(texSquare));
-        addEntity(createFood(texSquare));
-        addEntity(createFood(texSquare));
-        addEntity(createFood(texSquare));
 
-        addEntity(createWater(texSquare));
 
-        addEntity(createWord(text_baba,"BABA"));
-        addEntity(createWord(flag_text,"FLAG"));
-        addEntity(createWord(is_text,"IS"));
-        addEntity(createWord(you_text,"YOU"));
-        addEntity(createWord(push_text,"PUSH"));
-        addEntity(createWord(wall_text,"WALL"));
-        addEntity(createWord(water_text,"WATER"));
+        addEntity(createObject("BABA",texSquare,Color.GREEN,3,3));
+        addEntity(createObject("ROCK",rockText,Color.RED,10,3));
+        addEntity(createObject("FLAG",flagText,Color.YELLOW,6,10));
+
 
         var countdown = ecs.Entities.Countdown.create(.1);
         addEntity(countdown);
@@ -97,7 +109,7 @@ public class GameModel {
         // Now do the normal update
         sysMovement.update(elapsedTime);
         sysCollision.update(elapsedTime);
-
+        sysReadRules.update(elapsedTime);
         for (var entity : removeThese) {
             removeEntity(entity);
         }
@@ -117,6 +129,7 @@ public class GameModel {
         sysKeyboardInput.add(entity);
         sysMovement.add(entity);
         sysCollision.add(entity);
+        sysReadRules.add(entity);
         sysRenderer.add(entity);
         sysCountdown.add(entity);
     }
@@ -125,6 +138,7 @@ public class GameModel {
         sysKeyboardInput.remove(entity.getId());
         sysMovement.remove(entity.getId());
         sysCollision.remove(entity.getId());
+        sysReadRules.remove(entity.getId());
         sysRenderer.remove(entity.getId());
         sysCountdown.remove(entity.getId());
     }
@@ -168,6 +182,9 @@ public class GameModel {
         controller = proposed;
 
     }
+    private Entity createObject(String type,Texture square,Color color,int x,int y) {
+        return GameObject.create(type,square,color,x,y);
+    }
 
     private Entity createFood(Texture square) {
         MyRandom rnd = new MyRandom();
@@ -185,38 +202,10 @@ public class GameModel {
 
         return proposed;
     }
-    private Entity createWater(Texture square) {
-        MyRandom rnd = new MyRandom();
-        boolean done = false;
 
-        Entity proposed = null;
-        while (!done) {
-            int x = (int) rnd.nextRange(1, GRID_SIZE - 1);
-            int y = (int) rnd.nextRange(1, GRID_SIZE - 1);
-            proposed = Water.create(square, x, y);
-            if (!sysCollision.collidesWithAny(proposed)) {
-                done = true;
-            }
-        }
+    private Entity createWord(Texture square,String text,int x,int y) {
 
-        return proposed;
-    }
-
-    private Entity createWord(Texture square,String text) {
-        MyRandom rnd = new MyRandom();
-        boolean done = false;
-
-        Entity proposed = null;
-        while (!done) {
-            int x = (int) rnd.nextRange(1, GRID_SIZE - 1);
-            int y = (int) rnd.nextRange(1, GRID_SIZE - 1);
-            proposed = Word.create(square, x, y,text);
-            if (!sysCollision.collidesWithAny(proposed)) {
-                done = true;
-            }
-        }
-
-        return proposed;
+        return Word.create(square, x, y,text);
     }
 
 }
