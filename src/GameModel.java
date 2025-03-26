@@ -8,10 +8,16 @@ import edu.usu.graphics.*;
 
 import java.lang.System;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+import static java.lang.System.out;
 
 public class GameModel {
-    private final int GRID_SIZE = 20;
+    private int GRID_SIZE = -1;
 
 
     private final List<Entity> removeThese = new ArrayList<>();
@@ -27,32 +33,48 @@ public class GameModel {
     private ecs.Systems.Countdown sysCountdown;
     private ecs.Systems.ReadRules sysReadRules;
 
+    private HashMap<Character,String> objects = new HashMap<>();
+    private HashMap<Character,String> text = new HashMap<>();
 
-    public void initialize(Graphics2D graphics) {
-        var texSquare = new Texture("resources/images/square-outline.png");
-        var rockText = new Texture("resources/images/rock.png");
-        var flagText = new Texture("resources/images/flag.png");
-        var text_baba = new Texture("resources/images/word-baba.png");
-        var flag_text = new Texture("resources/images/word-flag.png");
-        var is_text = new Texture("resources/images/word-is.png");
-        var kill_text = new Texture("resources/images/word-kill.png");
-        var push_text = new Texture("resources/images/word-push.png");
-        var stop_text = new Texture("resources/images/word-stop.png");
-        var you_text = new Texture("resources/images/word-you.png");
-        var wall_text = new Texture("resources/images/word-wall.png");
-        var water_text = new Texture("resources/images/word-water.png");
+    public void initialize(Graphics2D graphics,int GRID_SIZE, String level_name) {
 
-        var rock_text = new Texture("resources/images/word-rock.png");
+        this.GRID_SIZE = GRID_SIZE;
+        String lvl_name = level_name;
 
+        objects = new HashMap<>();
 
+        objects.put('w',"WALL");
+        objects.put('r',"ROCK");
+        objects.put('f',"FLAG");
+        objects.put('b',"BABA");
+        objects.put('l',"FLOOR");
+        objects.put('g',"GRASS");
+        objects.put('a',"WATER");
+        objects.put('v',"LAVA");
+        objects.put('h',"HEDGE");
 
-        sysRenderer = new Renderer(graphics, GRID_SIZE);
+        text = new HashMap<>();
+
+        text.put('W',"WALL");
+        text.put('R',"ROCK");
+        text.put('F',"FLAG");
+        text.put('B',"BABA");
+        text.put('I',"IS");
+        text.put('S',"STOP");
+        text.put('P',"PUSH");
+        text.put('V',"LAVA");
+        text.put('A',"WATER");
+        text.put('Y',"YOU");
+        text.put('X',"WIN");
+        text.put('N',"SINK");
+        text.put('K',"DEFEAT");
+
         sysCollision = new Collision(
                 //lamba for removing objects
                 (Entity entity) -> {
-                // Remove the sinkable object
-                removeThese.add(entity);
-            });
+                    // Remove the sinkable object
+                    removeThese.add(entity);
+                });
 
 
         sysMovement = new Movement(sysCollision);
@@ -72,49 +94,18 @@ public class GameModel {
                     //addEntity(baba);
                 });
 
-
-        //entites should be spawned in based on file input here
-
-        initializeBorder(texSquare);
-        initializeBaba(texSquare);
-        initializeBaba(texSquare);
-        initializeBaba(texSquare);
-
-        addEntity(createWord(text_baba,"BABA",2,2));
-        addEntity(createWord(rock_text,"ROCK",4,11));
-        addEntity(createWord(is_text,"IS",3,2));
-        addEntity(createWord(is_text,"IS",5,2));
-        addEntity(createWord(is_text,"IS",7,2));
-        addEntity(createWord(you_text,"YOU",4,2));
-        addEntity(createWord(stop_text,"STOP",4,3));
-        addEntity(createWord(push_text,"PUSH",10,3));
-        addEntity(createWord(flag_text,"FLAG",4,7));
-        addEntity(createWord(wall_text,"WALL",6,3));
-        addEntity(createWord(is_text,"IS",6,4));
-        addEntity(createWord(stop_text,"STOP",6,5));
+        sysRenderer = new Renderer(graphics, GRID_SIZE);
 
         initializeController();
         sysMovement.addController(controller);
 
-
-        addEntity(createObject("BABA",texSquare,Color.GREEN,3,3));
-        addEntity(createObject("ROCK",rockText,Color.RED,10,3));
-        addEntity(createObject("FLAG",flagText,Color.YELLOW,6,10));
-        GameObjectRegistry.GameObjectInfo wall = GameObjectRegistry.getObjectInfo("WALL");
-
-
-        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),5,11));
-        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),6,11));
-        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),7,11));
-        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),8,11));
-        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),9,11));
-        addEntity(createObject("WALL",new Texture(wall.getImagePath())  ,wall.getColor(),10,11));
-
-
-
-
         var countdown = ecs.Entities.Countdown.create(.1);
         addEntity(countdown);
+
+        //entites should be spawned in based on file input here
+        String filePath = "resources/levels/level-1.bbiy";
+        initializeBorder();
+        buildLevel(filePath);
 
     }
 
@@ -158,37 +149,22 @@ public class GameModel {
         sysCountdown.remove(entity.getId());
     }
 
-    private void initializeBorder(Texture square) {
+    private void initializeBorder() {
         for (int position = 0; position < GRID_SIZE; position++) {
-            var left = BorderBlock.create(square, 0, position);
+            var left = BorderBlock.create( 0, position);
             addEntity(left);
 
-            var right = BorderBlock.create(square, GRID_SIZE - 1, position);
+            var right = BorderBlock.create( GRID_SIZE - 1, position);
             addEntity(right);
 
-            var top = BorderBlock.create(square, position, 0);
+            var top = BorderBlock.create( position, 0);
             addEntity(top);
 
-            var bottom = BorderBlock.create(square, position, GRID_SIZE - 1);
+            var bottom = BorderBlock.create(position, GRID_SIZE - 1);
             addEntity(bottom);
         }
     }
 
-    private void initializeBaba(Texture square) {
-        MyRandom rnd = new MyRandom();
-        boolean done = false;
-
-        while (!done) {
-            int x = (int) rnd.nextRange(1, GRID_SIZE - 1);
-            int y = (int) rnd.nextRange(1, GRID_SIZE - 1);
-            var proposed = Baba.create(square, x, y);
-            if (!sysCollision.collidesWithAny(proposed)) {
-                addEntity(proposed);
-                baba = proposed;
-                done = true;
-            }
-        }
-    }
 
     private void initializeController() {
 
@@ -199,28 +175,68 @@ public class GameModel {
     }
     private Entity createObject(String type,Texture square,Color color,int x,int y) {
         return GameObject.create(type,square,color,x,y);
+
     }
 
-    private Entity createFood(Texture square) {
-        MyRandom rnd = new MyRandom();
-        boolean done = false;
-
-        Entity proposed = null;
-        while (!done) {
-            int x = (int) rnd.nextRange(1, GRID_SIZE - 1);
-            int y = (int) rnd.nextRange(1, GRID_SIZE - 1);
-            proposed = Rock.create(square, x, y);
-            if (!sysCollision.collidesWithAny(proposed)) {
-                done = true;
-            }
-        }
-
-        return proposed;
-    }
 
     private Entity createWord(Texture square,String text,int x,int y) {
 
         return Word.create(square, x, y,text);
     }
 
+    private void buildLevel(String level){
+
+        try (BufferedReader br = new BufferedReader(new FileReader(level))) {
+            String line;
+
+            int i = 0;
+            int line_num = 0;
+
+            String level_name = "";
+            while ((line = br.readLine()) != null) {
+
+                if (line_num == 0){
+                    level_name = line;
+                }
+                else if(line_num == 1){
+                    String[] info_to_parse = line.split(" ");
+                    int num_1 = Integer.parseInt(info_to_parse[0]);
+                    int num_2 = Integer.parseInt(info_to_parse[2]);
+                    GRID_SIZE = Math.max(num_1, num_2);
+                }
+                else{
+                    int j = 0;
+                    for (char c : line.toCharArray()) {
+
+                        //spawn object
+                        if(objects.containsKey(c)){
+
+                            GameObjectRegistry.GameObjectInfo obj = GameObjectRegistry.getObjectInfo(objects.get(c));
+
+                            addEntity(createObject(objects.get(c),new Texture(obj.getImagePath()),obj.getColor(),j,i));
+                        }
+                        else if(text.containsKey(c)){
+                            GameObjectRegistry.GameObjectInfo word = GameObjectRegistry.getObjectInfo("WORD_"+text.get(c));
+                            out.println(text.get(c));
+                            addEntity(createWord(new Texture(word.getImagePath()),text.get(c),j,i));
+                        }
+                        j++;
+
+                    }
+                }
+
+                line_num ++;
+                //some features are places almost like layers, this allows us to read the next "layer"
+                if(line_num > 2){
+                    i ++;
+                    if(i % GRID_SIZE == 0){
+                        i = 0;
+
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

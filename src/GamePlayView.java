@@ -22,7 +22,7 @@ public class GamePlayView extends GameStateView {
     @Override
     public void initializeSession() {
         gameModel = new GameModel();
-        gameModel.initialize(graphics);
+        gameModel.initialize(graphics,20,"lvl-1"); //parameters should change to when we actually read the first two lines of each level file
         nextGameState = GameStateEnum.GamePlay;
     }
 

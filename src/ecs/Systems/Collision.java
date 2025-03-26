@@ -88,6 +88,12 @@ public class Collision extends System {
                         else if (entity.contains(ecs.Components.Defeat.class)){
                             destroy.invoke(entityMovable);
                         }
+                        else if (entity.contains(ecs.Components.Win.class)){
+
+                            //Execute particle effects
+                            //Exit level
+
+                        }
 
                 }
             }
