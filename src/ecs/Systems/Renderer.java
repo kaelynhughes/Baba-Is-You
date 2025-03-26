@@ -29,7 +29,7 @@ public class Renderer extends System {
 
         // Draw a blue background for the gameplay area
         Rectangle area = new Rectangle(-0.5f + OFFSET_X, -0.5f + OFFSET_Y, GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE);
-        graphics.draw(area, Color.BLUE);
+        graphics.draw(area, Color.BLACK);
 
         // Draw each of the game entities!
         for (var entity : entities.values()) {
