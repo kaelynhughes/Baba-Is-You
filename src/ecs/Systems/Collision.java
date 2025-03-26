@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.System.out;
+
 public class Collision extends System {
 
     public interface IDestroy {
@@ -88,8 +90,8 @@ public class Collision extends System {
                         else if (entity.contains(ecs.Components.Defeat.class)){
                             destroy.invoke(entityMovable);
                         }
-                        else if (entity.contains(ecs.Components.Win.class)){
-
+                        else if (entityMovable.contains(ecs.Components.Win.class)){
+                            out.println("YOU WON!!");
                             //Execute particle effects
                             //Exit level
 
@@ -148,7 +150,7 @@ public class Collision extends System {
         var bPosition = b.get(ecs.Components.Position.class);
 
         // A movable can collide with itself: Check segment against the rest
-        if (a == b) {
+        if (a != b) {
             // Have to skip the first segment, that's why using a counted for loop
 
                 if (aPosition.getX() == bPosition.getX() && aPosition.getY() == bPosition.getY()) {
@@ -156,10 +158,9 @@ public class Collision extends System {
                 }
 
 
-            return false;
         }
 
-        return aPosition.getX() == bPosition.getX() && aPosition.getY() == bPosition.getY();
+        return false;
     }
 
 }
