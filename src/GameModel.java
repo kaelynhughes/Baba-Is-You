@@ -103,9 +103,8 @@ public class GameModel {
         addEntity(countdown);
 
         //entites should be spawned in based on file input here
-        String filePath = "resources/levels/level-4.bbiy";
         initializeBorder();
-        buildLevel(filePath);
+        buildLevel(lvl_name);
 
     }
 

@@ -2,6 +2,7 @@ package ecs.Entities;
 
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Texture;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Map;
 

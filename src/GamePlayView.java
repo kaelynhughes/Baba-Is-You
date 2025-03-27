@@ -7,6 +7,7 @@ public class GamePlayView extends GameStateView {
     private KeyboardInput inputKeyboard;
     private GameStateEnum nextGameState = GameStateEnum.GamePlay;
     private GameModel gameModel;
+    private String level;
 
     @Override
     public void initialize(Graphics2D graphics) {
@@ -21,6 +22,11 @@ public class GamePlayView extends GameStateView {
 
     @Override
     public void initializeSession() {
+        gameModel = new GameModel();
+        gameModel.initialize(graphics,20,"lvl-1"); //parameters should change to when we actually read the first two lines of each level file
+        nextGameState = GameStateEnum.GamePlay;
+    }
+    public void giveLevelInfo(String level) {
         gameModel = new GameModel();
         gameModel.initialize(graphics,20,"lvl-1"); //parameters should change to when we actually read the first two lines of each level file
         nextGameState = GameStateEnum.GamePlay;

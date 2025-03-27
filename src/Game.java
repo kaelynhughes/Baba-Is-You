@@ -20,6 +20,7 @@ public class Game {
             {
                 put(GameStateEnum.MainMenu, new MainMenuView());
                 put(GameStateEnum.GamePlay, new GamePlayView());
+                put(GameStateEnum.LevelSelect, new LevelSelectView());
                 put(GameStateEnum.HighScores, new HighScoresView());
                 put(GameStateEnum.Help, new HelpView());
                 put(GameStateEnum.About, new AboutView());
