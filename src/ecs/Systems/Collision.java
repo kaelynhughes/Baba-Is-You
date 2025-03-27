@@ -81,7 +81,7 @@ public class Collision extends System {
 
         for (var entity : entities.values()) {
             for (var entityMovable : movable) {
-                if (collides(entity, entityMovable)) {
+                if ( !entityMovable.contains(ecs.Components.Text.class)&& collides(entity, entityMovable)) {
 
                         if (entity.contains(ecs.Components.Sink.class)){
                             destroy.invoke(entity);
