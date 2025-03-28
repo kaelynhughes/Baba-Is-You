@@ -51,11 +51,11 @@ public class MainMenuView extends GameStateView {
         // When Enter is pressed, set the appropriate new game state
         inputKeyboard.registerCommand(GLFW_KEY_ENTER, true, (double elapsedTime) -> {
             nextGameState = switch (currentSelection) {
-                case MenuState.NewGame -> GameStateEnum.LevelSelect;
-                case MenuState.HighScores -> GameStateEnum.HighScores;
-                case MenuState.Help -> GameStateEnum.Help;
-                case MenuState.About -> GameStateEnum.About;
-                case MenuState.Quit -> GameStateEnum.Quit;
+                case NewGame -> GameStateEnum.LevelSelect;
+                case HighScores -> GameStateEnum.HighScores;
+                case Help -> GameStateEnum.Help;
+                case About -> GameStateEnum.About;
+                case Quit -> GameStateEnum.Quit;
             };
         });
     }

@@ -1,5 +1,7 @@
 import edu.usu.graphics.Graphics2D;
 
+import java.util.List;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class GamePlayView extends GameStateView {
@@ -7,7 +9,12 @@ public class GamePlayView extends GameStateView {
     private KeyboardInput inputKeyboard;
     private GameStateEnum nextGameState = GameStateEnum.GamePlay;
     private GameModel gameModel;
-    private String level;
+    private List<String>  level;
+
+    @Override
+    public void setLevelData(List<String> level) {
+        this.level = level;
+    }
 
     @Override
     public void initialize(Graphics2D graphics) {
@@ -23,8 +30,18 @@ public class GamePlayView extends GameStateView {
     @Override
     public void initializeSession() {
         gameModel = new GameModel();
-        gameModel.initialize(graphics,20,"lvl-1"); //parameters should change to when we actually read the first two lines of each level file
-        nextGameState = GameStateEnum.GamePlay;
+
+        if(level != null){
+
+            String[] dim = level.get(1).split(" x ");
+
+            int size = Math.max(Integer.parseInt(dim[0]), Integer.parseInt(dim[1]));
+
+            gameModel.initialize(graphics,size,level.get(2)); //parameters should change to when we actually read the first two lines of each level file
+            nextGameState = GameStateEnum.GamePlay;
+
+        }
+
     }
     public void giveLevelInfo(String level) {
         gameModel = new GameModel();

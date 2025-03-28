@@ -42,7 +42,7 @@ public class GameObjectRegistry {
         objectRegistry.put("WORD_BABA", new GameObjectInfo("resources/images/word-baba.png", Color.WORD_BABA_COLOR));
         objectRegistry.put("WORD_FLAG", new GameObjectInfo("resources/images/word-flag.png", Color.WORD_FLAG_COLOR));
         objectRegistry.put("WORD_IS", new GameObjectInfo("resources/images/word-is.png", Color.WORD_IS_COLOR));
-        objectRegistry.put("WORD_KILL", new GameObjectInfo("resources/images/word-kill.png", Color.WORD_KILL_COLOR));
+        objectRegistry.put("WORD_DEFEAT", new GameObjectInfo("resources/images/word-kill.png", Color.WORD_KILL_COLOR));
         objectRegistry.put("WORD_LAVA", new GameObjectInfo("resources/images/word-lava.png", Color.WORD_LAVA_COLOR));
         objectRegistry.put("WORD_PUSH", new GameObjectInfo("resources/images/word-push.png", Color.WORD_PUSH_COLOR));
         objectRegistry.put("WORD_ROCK", new GameObjectInfo("resources/images/word-rock.png", Color.WORD_ROCK_COLOR));

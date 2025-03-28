@@ -1,6 +1,7 @@
 import edu.usu.graphics.*;
 
 import java.util.HashMap;
+import java.util.List;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -71,7 +72,16 @@ public class Game {
             if (nextStateEnum == prevStateEnum) {
                 currentState.update(elapsedTime);
             } else {
-                currentState = states.get(nextStateEnum);
+                IGameState nextState = states.get(nextStateEnum);
+
+                // If transitioning from LevelSelectView to GamePlayView, pass level data
+                if (currentState instanceof LevelSelectView && nextState instanceof GamePlayView) {
+                    List<String> selectedLevel = ((LevelSelectView) currentState).getSelectedLevel();
+                    System.out.println("HELLO "+selectedLevel);
+                    ((GamePlayView) nextState).setLevelData(selectedLevel);
+                }
+
+                currentState = nextState;
                 currentState.initializeSession();
                 prevStateEnum = nextStateEnum;
             }

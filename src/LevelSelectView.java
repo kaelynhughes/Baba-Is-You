@@ -23,6 +23,7 @@ public class LevelSelectView extends GameStateView {
     private Font fontSelected;
 
     private List<List<String>> level_info = new ArrayList<>();
+    private List<String> files = new ArrayList<>();
     @Override
     public void initialize(Graphics2D graphics) {
         super.initialize(graphics);
@@ -57,12 +58,15 @@ public class LevelSelectView extends GameStateView {
 
 
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(directoryPath))) {
+
             for (Path file : stream) {
+                //files.add(file.toString());
                 if (Files.isRegularFile(file)) { // Ensure it's a file, not a directory
                     List<String> lines = Files.readAllLines(file, StandardCharsets.UTF_8);
                     ArrayList<String> data = new ArrayList<>();
                     data.add(lines.get(0));
                     data.add(lines.get(1));
+                    data.add(file.toString());
                     level_info.add(data);
 
                 }
@@ -127,5 +131,10 @@ public class LevelSelectView extends GameStateView {
 
 
     }
-
+    public List<String> getSelectedLevel() {
+        if (currentSelection != -1) {
+            return level_info.get(currentSelection); // Assuming the first entry is the level name
+        }
+        return null;
+    }
 }

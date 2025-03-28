@@ -215,6 +215,7 @@ public class GameModel {
                             addEntity(createObject(objects.get(c),new Texture(obj.getImagePath()),obj.getColor(),j,i));
                         }
                         else if(text.containsKey(c)){
+                            out.println(c);
                             GameObjectRegistry.GameObjectInfo word = GameObjectRegistry.getObjectInfo("WORD_"+text.get(c));
                             out.println(text.get(c));
                             addEntity(createWord(new Texture(word.getImagePath()),text.get(c),j,i));
