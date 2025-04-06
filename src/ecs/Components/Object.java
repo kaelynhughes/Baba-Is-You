@@ -6,4 +6,8 @@ public class Object extends Component {
 
     }
 
+    @Override
+    public Component copy() {
+        return new Object();
+    }
 }

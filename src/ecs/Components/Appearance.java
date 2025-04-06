@@ -11,4 +11,9 @@ public class Appearance extends Component {
         this.image = image;
         this.color = color;
     }
+
+    @Override
+    public Component copy() {
+        return new Appearance(this.image,this.color);
+    }
 }

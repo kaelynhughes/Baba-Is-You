@@ -4,4 +4,8 @@ package ecs.Components;
  * associated with this component.
  */
 public class Defeat extends Component {
+    @Override
+    public Component copy() {
+        return new Defeat();
+    }
 }

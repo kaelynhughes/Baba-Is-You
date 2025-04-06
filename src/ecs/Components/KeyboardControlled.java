@@ -16,4 +16,9 @@ public class KeyboardControlled extends Component {
             lookup.put(mapping.getValue(), mapping.getKey());
         }
     }
+
+    @Override
+    public Component copy() {
+        return null; // Shouldn't copy
+    }
 }

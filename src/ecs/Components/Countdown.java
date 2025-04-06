@@ -6,4 +6,9 @@ public class Countdown extends Component {
     public Countdown(double howLong) {
         timeRemaining = howLong;
     }
+
+    @Override
+    public Component copy() {
+        return new Countdown(timeRemaining);
+    }
 }

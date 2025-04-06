@@ -6,4 +6,8 @@ public class Tag extends Component {
     public Tag(String name) {
         this.name = name;
     }
+    @Override
+    public Component copy() {
+        return new Tag(this.name);
+    }
 }

@@ -2,12 +2,15 @@ package ecs.Components;
 import java.lang.System;
 public class Movable extends Component {
 
+
     public enum Direction {
         Stopped,
         Up,
         Down,
         Left,
-        Right
+        Right,
+
+        Undo
     }
 
     public Direction facing;
@@ -20,5 +23,9 @@ public class Movable extends Component {
 
     }
 
+    @Override
+    public Component copy() {
+        return new Movable(this.facing);
+    }
 
 }

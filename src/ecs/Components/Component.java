@@ -7,6 +7,7 @@ package ecs.Components;
  */
 public abstract class Component {
     /*
-     * Intentionally empty class
+     * Must include copy method for deep copying purposes
      */
+    public abstract Component copy();
 }

@@ -1,12 +1,16 @@
 package ecs.Systems;
 
+import ecs.Components.Appearance;
 import ecs.Components.Movable;
+import ecs.Components.Position;
+import ecs.Components.Tag;
 import ecs.Entities.Entity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.System.exit;
 import static java.lang.System.out;
 
 public class Collision extends System {
@@ -81,7 +85,7 @@ public class Collision extends System {
 
         for (var entity : entities.values()) {
             for (var entityMovable : movable) {
-                if ( !entityMovable.contains(ecs.Components.Text.class)&& collides(entity, entityMovable)) {
+                if ( !entityMovable.contains(ecs.Components.Text.class) && collides(entity, entityMovable) && entity != entityMovable) {
 
                         if (entity.contains(ecs.Components.Sink.class)){
                             destroy.invoke(entity);
@@ -90,8 +94,12 @@ public class Collision extends System {
                         else if (entity.contains(ecs.Components.Defeat.class)){
                             destroy.invoke(entityMovable);
                         }
-                        else if (entityMovable.contains(ecs.Components.Win.class)){
+                        else if (entity.contains(ecs.Components.PlayerControlled.class) && entityMovable.contains(ecs.Components.Win.class)){
+
+                            out.println((entity.get(Tag.class).name));
+                            out.println(entityMovable.get(Tag.class).name);
                             out.println("YOU WON!!");
+
                             //Execute particle effects
                             //Exit level
 
@@ -153,9 +161,7 @@ public class Collision extends System {
         if (a != b) {
             // Have to skip the first segment, that's why using a counted for loop
 
-                if (aPosition.getX() == bPosition.getX() && aPosition.getY() == bPosition.getY()) {
-                    return true;
-                }
+            return aPosition.getX() == bPosition.getX() && aPosition.getY() == bPosition.getY();
 
 
         }

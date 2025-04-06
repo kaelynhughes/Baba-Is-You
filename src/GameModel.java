@@ -32,6 +32,7 @@ public class GameModel {
     private ecs.Systems.KeyboardInput sysKeyboardInput;
     private ecs.Systems.Countdown sysCountdown;
     private ecs.Systems.ReadRules sysReadRules;
+    private ecs.Systems.Undo sysUndo;
 
     private HashMap<Character,String> objects = new HashMap<>();
     private HashMap<Character,String> text = new HashMap<>();
@@ -39,7 +40,6 @@ public class GameModel {
     public void initialize(Graphics2D graphics,int GRID_SIZE, String level_name) {
 
         this.GRID_SIZE = GRID_SIZE;
-        String lvl_name = level_name;
 
         objects = new HashMap<>();
 
@@ -82,6 +82,7 @@ public class GameModel {
 
         sysKeyboardInput = new KeyboardInput(graphics.getWindow());
 
+        sysUndo = new Undo();
         sysCountdown = new Countdown(
                 graphics,
                 (Entity entity) -> {
@@ -98,23 +99,29 @@ public class GameModel {
 
         initializeController();
         sysMovement.addController(controller);
+        sysUndo.addController(controller);
+
 
         var countdown = ecs.Entities.Countdown.create(.1);
         addEntity(countdown);
 
         //entites should be spawned in based on file input here
         initializeBorder();
-        buildLevel(lvl_name);
+        buildLevel(level_name);
 
+
+        sysUndo.setEntityCallbacks(this::removeEntity, this::addEntity);
     }
 
     public void update(double elapsedTime) {
         // Because ECS framework, input processing is now part of the update
         sysKeyboardInput.update(elapsedTime);
         // Now do the normal update
+        sysUndo.update(elapsedTime);
         sysMovement.update(elapsedTime);
         sysCollision.update(elapsedTime);
         sysReadRules.update(elapsedTime);
+
         for (var entity : removeThese) {
             removeEntity(entity);
         }
@@ -135,6 +142,7 @@ public class GameModel {
         sysMovement.add(entity);
         sysCollision.add(entity);
         sysReadRules.add(entity);
+        sysUndo.add(entity);
         sysRenderer.add(entity);
         sysCountdown.add(entity);
     }
@@ -144,6 +152,7 @@ public class GameModel {
         sysMovement.remove(entity.getId());
         sysCollision.remove(entity.getId());
         sysReadRules.remove(entity.getId());
+        sysUndo.remove(entity.getId());
         sysRenderer.remove(entity.getId());
         sysCountdown.remove(entity.getId());
     }
