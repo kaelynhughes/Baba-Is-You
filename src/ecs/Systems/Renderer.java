@@ -51,4 +51,19 @@ public class Renderer extends System {
         graphics.draw(appearance.image, area, appearance.color);
 
     }
+
+    public float getCELL_SIZE() {
+        return CELL_SIZE;
+    }
+
+    public float getOFFSET_X() {
+        return OFFSET_X;
+    }
+
+    public float getOFFSET_Y() {
+        return OFFSET_Y;
+    }
+    public Graphics2D getGraphics() {
+        return graphics;
+    }
 }

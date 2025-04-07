@@ -86,7 +86,6 @@ public class Undo extends System {
 
         //store what the original level is like level
         if (original == null){
-            out.println("Original is null...");
             original = new HashMap<>();
             for (var entry : entities.entrySet()) {
                 original.put(entry.getKey(), deepCopyEntity(entry.getValue()));
@@ -95,12 +94,10 @@ public class Undo extends System {
 
         //undo action
         if(input.currentDirection == Movable.Direction.Undo){
-            out.println("Undo");
             restoreSnapshot(undo());
         }
         //resets level
         else if(input.currentDirection == Movable.Direction.Reset){
-            out.println("Reset level");
 
             Map<Long, Entity> temp_og = new HashMap<>();
             for (var entry : original.entrySet()) {

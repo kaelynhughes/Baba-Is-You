@@ -68,13 +68,13 @@ public class GameModel {
         text.put('X',"WIN");
         text.put('N',"SINK");
         text.put('K',"DEFEAT");
-
+        sysRenderer = new Renderer(graphics, GRID_SIZE);
         sysCollision = new Collision(
                 //lamba for removing objects
                 (Entity entity) -> {
                     // Remove the sinkable object
                     removeThese.add(entity);
-                });
+                },sysRenderer);
 
 
         sysMovement = new Movement(sysCollision);
@@ -95,7 +95,7 @@ public class GameModel {
                     //addEntity(baba);
                 });
 
-        sysRenderer = new Renderer(graphics, GRID_SIZE);
+
 
         initializeController();
         sysMovement.addController(controller);

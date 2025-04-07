@@ -5,6 +5,9 @@ import ecs.Components.Movable;
 import ecs.Components.Position;
 import ecs.Components.Tag;
 import ecs.Entities.Entity;
+import ecs.ParticleSystem;
+import edu.usu.graphics.Graphics2D;
+import org.joml.Vector2f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +25,16 @@ public class Collision extends System {
 
 
     private final IDestroy destroy;
-
-    public Collision(IDestroy destroy) {
+    private ParticleSystem particleSystem;
+    private Graphics2D graphics;
+    public Collision(IDestroy destroy, Renderer renderer) {
         super(ecs.Components.Collision.class,ecs.Components.Position.class);
         this.destroy = destroy;
+        this.particleSystem = new ParticleSystem(renderer.getCELL_SIZE(),renderer.getOFFSET_X(),renderer.getOFFSET_Y());
+        graphics = renderer.getGraphics();
+        //Collisions will be responsible for particle system since they only occur here
+
+
 
     }
 
@@ -88,14 +97,23 @@ public class Collision extends System {
                 if ( !entityMovable.contains(ecs.Components.Text.class) && collides(entity, entityMovable) && entity != entityMovable) {
 
                         if (entity.contains(ecs.Components.Sink.class)){
+                            int ent_x = entity.get(Position.class).getX();
+                            int ent_y = entity.get(Position.class).getY();
                             destroy.invoke(entity);
                             destroy.invoke(entityMovable);
+                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 25 , 1.5f);
                         }
                         else if (entity.contains(ecs.Components.Defeat.class)){
+                            int ent_x = entity.get(Position.class).getX();
+                            int ent_y = entity.get(Position.class).getY();
                             destroy.invoke(entityMovable);
+                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 25 , 1.5f);
                         }
                         else if (entity.contains(ecs.Components.PlayerControlled.class) && entityMovable.contains(ecs.Components.Win.class)){
+                            int ent_x = entity.get(Position.class).getX();
+                            int ent_y = entity.get(Position.class).getY();
 
+                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 25 , 1.5f);
                             out.println((entity.get(Tag.class).name));
                             out.println(entityMovable.get(Tag.class).name);
                             out.println("YOU WON!!");
@@ -108,6 +126,8 @@ public class Collision extends System {
                 }
             }
         }
+        particleSystem.update((float) elapsedTime);
+        particleSystem.render(graphics);
     }
 
     /**
