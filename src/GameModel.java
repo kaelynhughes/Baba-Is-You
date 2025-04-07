@@ -117,11 +117,11 @@ public class GameModel {
         // Because ECS framework, input processing is now part of the update
         sysKeyboardInput.update(elapsedTime);
         // Now do the normal update
-        sysUndo.update(elapsedTime);
+
         sysMovement.update(elapsedTime);
         sysCollision.update(elapsedTime);
         sysReadRules.update(elapsedTime);
-
+        sysUndo.update(elapsedTime);
         for (var entity : removeThese) {
             removeEntity(entity);
         }

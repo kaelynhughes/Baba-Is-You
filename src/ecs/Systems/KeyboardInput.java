@@ -22,7 +22,6 @@ public class KeyboardInput extends System {
 
         int i = 0;
         for (var entity : entities.values()) {
-            //out.println("CONTROLLER ENTITES - "+i);
 
             i +=1;
 
@@ -58,6 +57,12 @@ public class KeyboardInput extends System {
             else if (glfwGetKey(window, input.lookup.get(Movable.Direction.Undo)) == GLFW_PRESS) {
                 if (!pressed) {
                     play_input.currentDirection = input.keys.get(GLFW_KEY_Z);
+                    pressed = true;
+                }
+            }
+            else if (glfwGetKey(window, input.lookup.get(Movable.Direction.Reset)) == GLFW_PRESS) {
+                if (!pressed) {
+                    play_input.currentDirection = input.keys.get(GLFW_KEY_R);
                     pressed = true;
                 }
             }

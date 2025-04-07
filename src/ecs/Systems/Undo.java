@@ -17,11 +17,13 @@ public class Undo extends System {
     private java.util.function.Consumer<Entity> removeEntityCallback;
     private java.util.function.Consumer<Entity> addEntityCallback;
 
+    private Map<Long, Entity> original;
     private final Deque<Map<Long, Entity>> historyStack = new ArrayDeque<>();
 
 
     public Undo(){
         super(Position.class);
+        original = null;
 
     }
 
@@ -82,21 +84,46 @@ public class Undo extends System {
 
         var input = controller.get(ecs.Components.PlayerInput.class);
 
+        //store what the original level is like level
+        if (original == null){
+            out.println("Original is null...");
+            original = new HashMap<>();
+            for (var entry : entities.entrySet()) {
+                original.put(entry.getKey(), deepCopyEntity(entry.getValue()));
+            }
+        }
+
+        //undo action
         if(input.currentDirection == Movable.Direction.Undo){
+            out.println("Undo");
+            restoreSnapshot(undo());
+        }
+        //resets level
+        else if(input.currentDirection == Movable.Direction.Reset){
+            out.println("Reset level");
 
-            restoreSnapshot();
+            Map<Long, Entity> temp_og = new HashMap<>();
+            for (var entry : original.entrySet()) {
+                temp_og.put(entry.getKey(), deepCopyEntity(entry.getValue()));
+            }
+            restoreSnapshot(original);
+            clearHistory();
+            original = temp_og;
 
-
-        } else if(input.currentDirection == Movable.Direction.Right||
+        }
+        //Stores everything before resolving
+        else if(input.currentDirection == Movable.Direction.Right||
                 input.currentDirection == Movable.Direction.Up||
                 input.currentDirection == Movable.Direction.Left||
                 input.currentDirection == Movable.Direction.Down){
                 snapshot(entities);
+
+                out.println("moves saved: "+ historyStack.size());
         }
 
     }
-    public void restoreSnapshot() {
-        Map<Long, Entity> snapshot = undo();
+    public void restoreSnapshot(Map<Long, Entity> snapshot) {
+
         if (snapshot != null) {
             // Remove current entities
             for (Entity entity : new ArrayList<>(entities.values())) {
@@ -113,6 +140,7 @@ public class Undo extends System {
 
             // Replace system's internal entity map
             entities = new HashMap<>(snapshot); // If allowed, or otherwise do it via add()
+
         }
     }
 

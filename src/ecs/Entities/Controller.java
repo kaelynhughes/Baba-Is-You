@@ -1,5 +1,6 @@
 package ecs.Entities;
 
+import ecs.Components.Movable;
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Texture;
 import org.lwjgl.glfw.GLFW;
@@ -24,7 +25,8 @@ public class Controller {
                         GLFW_KEY_DOWN, ecs.Components.Movable.Direction.Down,
                         GLFW_KEY_LEFT, ecs.Components.Movable.Direction.Left,
                         GLFW_KEY_RIGHT, ecs.Components.Movable.Direction.Right,
-                        GLFW_KEY_Z, ecs.Components.Movable.Direction.Undo
+                        GLFW_KEY_Z, ecs.Components.Movable.Direction.Undo,
+                        GLFW_KEY_R, ecs.Components.Movable.Direction.Reset
                 )));
     }
 }

@@ -6,7 +6,7 @@ public class PlayerInput extends Component {
 
     @Override
     public Component copy() {
-        return null; // doesn't copy
+        return new PlayerInput(); // doesn't copy
     }
 }
 

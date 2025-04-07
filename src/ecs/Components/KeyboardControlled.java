@@ -1,5 +1,6 @@
 package ecs.Components;
 
+import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +20,6 @@ public class KeyboardControlled extends Component {
 
     @Override
     public Component copy() {
-        return null; // Shouldn't copy
+        return new KeyboardControlled(this.keys); // Shouldn't copy
     }
 }

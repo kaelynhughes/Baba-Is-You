@@ -10,7 +10,8 @@ public class Movable extends Component {
         Left,
         Right,
 
-        Undo
+        Undo,
+        Reset
     }
 
     public Direction facing;
