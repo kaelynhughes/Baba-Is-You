@@ -8,13 +8,20 @@ class Particle {
     float size;
     float lifetime;
 
-    public Particle(int pos_x,int pos_y, Vector2f velocity, float lifetime,float size) {
+    String type;
+
+    public Particle(int pos_x,int pos_y, Vector2f velocity, float lifetime,float size,String type) {
         this.position = new Vector2f(pos_x,pos_y);
         this.velocity = new Vector2f(velocity);
         this.lifetime = lifetime;
         this.size = size;
+        this.type = type;
     }
 
+    public String getType(){
+        return this.type;
+
+    }
     public void update(float deltaTime) {
         position.add(velocity.mul(deltaTime, new Vector2f()));
         lifetime -= deltaTime;

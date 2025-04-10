@@ -99,26 +99,31 @@ public class Collision extends System {
                         if (entity.contains(ecs.Components.Sink.class)){
                             int ent_x = entity.get(Position.class).getX();
                             int ent_y = entity.get(Position.class).getY();
+
+
+                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 15 , 1.0f,"death");
                             destroy.invoke(entity);
                             destroy.invoke(entityMovable);
-                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 25 , 1.5f);
+
                         }
                         else if (entity.contains(ecs.Components.Defeat.class)){
                             int ent_x = entity.get(Position.class).getX();
                             int ent_y = entity.get(Position.class).getY();
+                            out.println("defeat collision");
+                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 15 , 1.0f,"death");
                             destroy.invoke(entityMovable);
-                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 25 , 1.5f);
+
                         }
                         else if (entity.contains(ecs.Components.PlayerControlled.class) && entityMovable.contains(ecs.Components.Win.class)){
                             int ent_x = entity.get(Position.class).getX();
                             int ent_y = entity.get(Position.class).getY();
 
-                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 25 , 1.5f);
+                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 25 , 1.5f,"win");
                             out.println((entity.get(Tag.class).name));
                             out.println(entityMovable.get(Tag.class).name);
                             out.println("YOU WON!!");
 
-                            //Execute particle effects
+
                             //Exit level
 
                         }

@@ -27,7 +27,7 @@ public class ParticleSystem {
         this.OFFSET_Y = OFFSET_Y;
     }
 
-    public void generateParticles(int pos_x, int pos_y, Vector2f velocityRange ,int count, float lifetimeRange) {
+    public void generateParticles(int pos_x, int pos_y, Vector2f velocityRange ,int count, float lifetimeRange,String type) {
         for (int i = 0; i < count; i++) {
             Vector2f velocity = new Vector2f(
                     (random.nextFloat() - 0.5f) * velocityRange.x,
@@ -35,7 +35,7 @@ public class ParticleSystem {
             );
             float lifetime = random.nextFloat() * lifetimeRange + 0.5f;
             float size = random.nextFloat() * sizeRange;
-            particles.add(new Particle(pos_x,pos_y, velocity, lifetime, size));
+            particles.add(new Particle(pos_x,pos_y, velocity, lifetime, size, type));
         }
     }
 
@@ -52,11 +52,21 @@ public class ParticleSystem {
 
     public void render(Graphics2D graphics) {
 
-        for (Particle particle : particles) {
-            Rectangle rec = new Rectangle((-0.5f + OFFSET_X + particle.position.x* CELL_SIZE)-(particle.size/2),(-0.5f + OFFSET_Y + particle.position.y * CELL_SIZE)-(particle.size/2),particle.size,particle.size);
-            Texture pic = new Texture("resources/images/pixel-star.png");
-            graphics.draw(pic, rec,Color.WHITE);
 
+        for (Particle particle : particles) {
+            Rectangle rec = new Rectangle((-0.5f + OFFSET_X + particle.position.x* CELL_SIZE),(-0.5f + OFFSET_Y + particle.position.y * CELL_SIZE),particle.size,particle.size);
+
+
+            switch (particle.getType()) {
+                case ("win") -> {
+                    Texture pic = new Texture("resources/images/pixel-star.png");
+                    graphics.draw(pic, rec, Color.WHITE);
+                }
+                case ("death") -> {
+                    Texture pic = new Texture("resources/images/square-outline.png");
+                    graphics.draw(pic, rec, Color.WHITE);
+                }
+            }
         }
     }
 }
