@@ -7,13 +7,13 @@ import edu.usu.graphics.Texture;
 public class Floor{
 
     public static Entity create(Texture square, int x, int y) {
-        var food = new Entity();
+        var floor = new Entity();
 
-        food.add(new ecs.Components.Appearance(square, new Color(1.0f, 0.5f, 0.0f)));
-        food.add(new ecs.Components.Position(x, y));
-        food.add(new ecs.Components.Collision());
-        food.add(new ecs.Components.Object());
+        floor.add(new ecs.Components.Appearance(square, new Color(1.0f, 0.5f, 0.0f)));
+        floor.add(new ecs.Components.Position(x, y));
+        floor.add(new ecs.Components.Collision());
+        floor.add(new ecs.Components.Object());
 
-        return food;
+        return floor;
     }
 }
