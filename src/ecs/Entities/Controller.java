@@ -1,6 +1,7 @@
 package ecs.Entities;
 
 import ecs.Components.Movable;
+import ecs.ControlRegistry;
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Texture;
 import org.lwjgl.glfw.GLFW;
@@ -19,14 +20,7 @@ public class Controller {
         return controller;
     }
     public static void enableControls(Entity controller) {
-        controller.add(new ecs.Components.KeyboardControlled(
-                Map.of(
-                        GLFW_KEY_UP, ecs.Components.Movable.Direction.Up,
-                        GLFW_KEY_DOWN, ecs.Components.Movable.Direction.Down,
-                        GLFW_KEY_LEFT, ecs.Components.Movable.Direction.Left,
-                        GLFW_KEY_RIGHT, ecs.Components.Movable.Direction.Right,
-                        GLFW_KEY_Z, ecs.Components.Movable.Direction.Undo,
-                        GLFW_KEY_R, ecs.Components.Movable.Direction.Reset
-                )));
+        ControlRegistry controlRegistry = ControlRegistry.getInstance();
+        controller.add(new ecs.Components.KeyboardControlled(controlRegistry.getControlMap()));
     }
 }
