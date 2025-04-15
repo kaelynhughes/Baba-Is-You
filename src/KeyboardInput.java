@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -19,6 +20,9 @@ public class KeyboardInput {
         commandEntries.put(key, new CommandEntry(key, keyPressOnly, callback));
         // Start out by assuming the key isn't currently pressed
         keysPressed.put(key, false);
+        if (glfwGetKey(window, key) == GLFW_PRESS) {
+            keysPressedOnRegister.add(key);
+        }
     }
 
     /**
@@ -26,7 +30,13 @@ public class KeyboardInput {
      */
     public void update(double elapsedTime) {
         for (var entry : commandEntries.entrySet()) {
-            if (entry.getValue().keyPressOnly && isKeyNewlyPressed(entry.getValue().key)) {
+            if (keysPressedOnRegister.contains(entry.getKey())) {
+                if (glfwGetKey(window, entry.getKey()) != GLFW_PRESS) {
+                    System.out.println("hacky thing worked");
+                    keysPressedOnRegister.remove(entry.getKey());
+                }
+                continue;
+            } else if (entry.getValue().keyPressOnly && isKeyNewlyPressed(entry.getValue().key)) {
                 entry.getValue().callback.invoke(elapsedTime);
             } else if (!entry.getValue().keyPressOnly && glfwGetKey(window, entry.getKey()) == GLFW_PRESS) {
                 entry.getValue().callback.invoke(elapsedTime);
@@ -50,6 +60,8 @@ public class KeyboardInput {
     private final HashMap<Integer, CommandEntry> commandEntries = new HashMap<>();
     // Table of registered callback keys previous pressed state
     private final HashMap<Integer, Boolean> keysPressed = new HashMap<>();
+    // this might be hacky but it does fix the issue with "enter" immediately registering as pressed
+    private final ArrayList<Integer> keysPressedOnRegister = new ArrayList<>();
 
     /**
      * Used to keep track of the details associated with a registered command
