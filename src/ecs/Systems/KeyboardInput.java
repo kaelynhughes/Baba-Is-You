@@ -32,37 +32,37 @@ public class KeyboardInput extends System {
 
             if (glfwGetKey(window, input.lookup.get(Movable.Direction.Up)) == GLFW_PRESS) {
                 if (!pressed) {
-                    play_input.currentDirection  = input.keys.get(GLFW_KEY_UP);
+                    play_input.currentDirection  = Movable.Direction.Up;
                     pressed = true;
                 }
             }
             else if (glfwGetKey(window, input.lookup.get(Movable.Direction.Down)) == GLFW_PRESS) {
                 if (!pressed) {
-                    play_input.currentDirection = input.keys.get(GLFW_KEY_DOWN);
+                    play_input.currentDirection = Movable.Direction.Down;
                     pressed = true;
                 }
             }
             else if (glfwGetKey(window, input.lookup.get(Movable.Direction.Left)) == GLFW_PRESS) {
                 if (!pressed) {
-                    play_input.currentDirection = input.keys.get(GLFW_KEY_LEFT);
+                    play_input.currentDirection = Movable.Direction.Left;
                     pressed = true;
                 }
             }
             else if (glfwGetKey(window, input.lookup.get(Movable.Direction.Right)) == GLFW_PRESS) {
                 if (!pressed) {
-                    play_input.currentDirection = input.keys.get(GLFW_KEY_RIGHT);
+                    play_input.currentDirection = Movable.Direction.Right;
                     pressed = true;
                 }
             }
             else if (glfwGetKey(window, input.lookup.get(Movable.Direction.Undo)) == GLFW_PRESS) {
                 if (!pressed) {
-                    play_input.currentDirection = input.keys.get(GLFW_KEY_Z);
+                    play_input.currentDirection = Movable.Direction.Undo;
                     pressed = true;
                 }
             }
             else if (glfwGetKey(window, input.lookup.get(Movable.Direction.Reset)) == GLFW_PRESS) {
                 if (!pressed) {
-                    play_input.currentDirection = input.keys.get(GLFW_KEY_R);
+                    play_input.currentDirection = Movable.Direction.Reset;
                     pressed = true;
                 }
             }
