@@ -84,7 +84,17 @@ public class ControlsView extends GameStateView {
 
         graphics.drawTextByHeight(font, message, 0.0f - width / 2, top, height, color);
 
+        top += height;
         height = 0.05f;
+        message = "Press Enter to change an input";
+        width = font.measureTextWidth(message, height);
+        graphics.drawTextByHeight(font, message, 0.0f - width / 2, top, height, color);
+
+        top += height;
+        message = "Press Esc to return to the main menu";
+        width = font.measureTextWidth(message, height);
+        graphics.drawTextByHeight(font, message, 0.0f - width / 2, top, height, color);
+
         top += height;
         for (int i = 0; i < controls.size(); i++) {
             ControlInfo control = controls.get(i);
