@@ -1,5 +1,7 @@
 package ecs;
 
+import java.io.*;
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -13,16 +15,24 @@ import ecs.Components.Movable.Direction;
 public class ControlRegistry {
     private static ControlRegistry registry;
     private final List<ControlInfo> controls;
+    private final File controlSaveFile;
+    private final String saveFileLocation = "resources/config/controls.txt";
+    private final Map<String, Direction> translationMap = Map.of(
+            "Up", Direction.Up,
+            "Down", Direction.Down,
+            "Left", Direction.Left,
+            "Right", Direction.Right,
+            "Undo", Direction.Undo,
+            "Reset", Direction.Reset
+    );
     private ControlRegistry() {
         controls = new ArrayList<>();
-
-        controls.add(new ControlInfo("Up", GLFW_KEY_W, Direction.Up));
-        controls.add(new ControlInfo("Left", GLFW_KEY_A, Direction.Left));
-        controls.add(new ControlInfo("Down", GLFW_KEY_S, Direction.Down));
-        controls.add(new ControlInfo("Right", GLFW_KEY_D, Direction.Right));
-
-        controls.add(new ControlInfo("Undo", GLFW_KEY_Z, Direction.Undo));
-        controls.add(new ControlInfo("Reset", GLFW_KEY_R, Direction.Reset));
+        controlSaveFile = new File(saveFileLocation);
+        if (controlSaveFile.exists()) {
+            populateFromFile();
+        } else {
+            populateDefaults();
+        }
     }
 
     public static ControlRegistry getInstance() {
@@ -90,10 +100,80 @@ public class ControlRegistry {
         }
 
         control.updateKey(key);
+        // we are currently erasing and rewriting the whole file on every update
+        // this is inefficient but insignificant with such a short file
+        // ideally (or if this becomes more complex) we would find and alter the correct line
+        saveToFile();
         return true;
     }
 
     public int getControlsCount() {
         return controls.size();
+    }
+
+    private void populateFromFile() {
+        // if the file contains any invalid values, we will return to the default configs
+        // this will erase the old file
+        try {
+            Scanner scanner = new Scanner(controlSaveFile);
+            while (scanner.hasNextLine()) {
+                String data = scanner.nextLine();
+                String[] splitData = data.split(",");
+                if (splitData.length != 2) {
+                    throw new ParseException("Illegal storage format; expected two comma-separated values, found " + data, 0);
+                }
+
+                Direction direction = translationMap.get(splitData[0]);
+                if (direction == null) {
+                    throw new ParseException("Illegal control type: " + splitData[0], 0);
+                }
+
+                // parseInt throws the error if the key is invalid, so we don't have to throw one ourselves
+                int key = Integer.parseInt(splitData[1]);
+
+                controls.add(new ControlInfo(
+                        splitData[0],
+                        key,
+                        direction
+                ));
+            }
+        } catch (FileNotFoundException ex) {
+            System.out.println("Something went wrong; no file was found in the correct location, and this function should not have been run without checking first that a file existed.");
+            populateDefaults();
+        } catch (ParseException ex) {
+            System.out.println("Tried to read in illegal control. " + ex.getMessage());
+            populateDefaults();
+        } catch (NumberFormatException ex) {
+            System.out.println("Tried to read in illegal key. " + ex.getMessage());
+            populateDefaults();
+        }
+    }
+
+    private void populateDefaults() {
+        controls.add(new ControlInfo("Up", GLFW_KEY_W, Direction.Up));
+        controls.add(new ControlInfo("Left", GLFW_KEY_A, Direction.Left));
+        controls.add(new ControlInfo("Down", GLFW_KEY_S, Direction.Down));
+        controls.add(new ControlInfo("Right", GLFW_KEY_D, Direction.Right));
+
+        controls.add(new ControlInfo("Undo", GLFW_KEY_Z, Direction.Undo));
+        controls.add(new ControlInfo("Reset", GLFW_KEY_R, Direction.Reset));
+
+        saveToFile();
+    }
+
+    private void saveToFile() {
+        try {
+            if (!controlSaveFile.exists() || !controlSaveFile.isFile()) {
+                controlSaveFile.createNewFile();
+            }
+            BufferedWriter fileWriter = new BufferedWriter(new FileWriter(saveFileLocation));
+            for (ControlInfo control: controls) {
+                fileWriter.write(control.getOutcomeDisplay() + "," + control.getKey());
+                fileWriter.newLine();
+            }
+            fileWriter.close();
+        } catch (IOException ex) {
+            System.out.println("Something went wrong creating the config save file.");
+        }
     }
 }
