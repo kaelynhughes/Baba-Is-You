@@ -16,6 +16,8 @@ public class ControlRegistry {
     private static ControlRegistry registry;
     private final List<ControlInfo> controls;
     private final File controlSaveFile;
+    // if either of these locations are changed, make sure they match!!
+    private final String saveFileDirectory = "resources/config";
     private final String saveFileLocation = "resources/config/controls.txt";
     private final Map<String, Direction> translationMap = Map.of(
             "Up", Direction.Up,
@@ -172,8 +174,18 @@ public class ControlRegistry {
 
     private void saveToFile() {
         try {
+            File directory = new File(saveFileDirectory);
+            if (!directory.exists()) {
+                boolean success = directory.mkdir();
+                if (!success) {
+                    throw new IOException("Directory does not exist; failed to create one.");
+                }
+            }
             if (!controlSaveFile.exists() || !controlSaveFile.isFile()) {
-                controlSaveFile.createNewFile();
+                boolean success = controlSaveFile.createNewFile();
+                if (!success) {
+                    throw new IOException("File does not exist; failed to create one.");
+                }
             }
             BufferedWriter fileWriter = new BufferedWriter(new FileWriter(saveFileLocation));
             for (ControlInfo control: controls) {
@@ -182,7 +194,7 @@ public class ControlRegistry {
             }
             fileWriter.close();
         } catch (IOException ex) {
-            System.out.println("Something went wrong creating the config save file.");
+            System.out.println("Something went wrong creating the config save file. " + ex.getMessage());
         }
     }
 }
