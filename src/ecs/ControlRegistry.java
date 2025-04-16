@@ -66,6 +66,15 @@ public class ControlRegistry {
         }
 
         public String getKeyDisplay() {
+            Map<Integer, String> arrows = Map.of(
+                    GLFW_KEY_UP, "Up Arrow",
+                    GLFW_KEY_DOWN, "Down Arrow",
+                    GLFW_KEY_LEFT, "Left Arrow",
+                    GLFW_KEY_RIGHT, "Right Arrow"
+            );
+            if (arrows.containsKey(key)) {
+                return arrows.get(key);
+            }
             int scancode = glfwGetKeyScancode(key);
             return glfwGetKeyName(key, scancode);
         }
