@@ -1,5 +1,6 @@
 package ecs.Systems;
 
+import ecs.AudioSystem;
 import ecs.Components.*;
 import ecs.Components.Object;
 import ecs.Entities.Entity;
@@ -7,10 +8,8 @@ import ecs.GameObjectRegistry;
 import edu.usu.graphics.Color;
 import edu.usu.graphics.Texture;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
-import static java.lang.System.exit;
 import static java.lang.System.out;
 
 public class ReadRules extends System {
@@ -22,15 +21,16 @@ public class ReadRules extends System {
 
     HashMap<String, Component> objectsTable;
     HashMap<String, Component> componentsTable;
-    private HashMap<String, HashSet<Class<? extends Component>>> objectComponentsTable;
-    ArrayList<Class>universalComponents;
+    private final HashMap<String, HashSet<Class<? extends Component>>> objectComponentsTable;
+    ArrayList<Class> universalComponents;
     Movement sysMovement;
+    AudioSystem audio;
 
     GameObjectRegistry registry;
 
     public ReadRules(Movement sysMovement) {
         super(Object.class);
-
+        this.audio = AudioSystem.getInstance();
 
         objectComponentsTable = new HashMap<>();
         universalComponents = new ArrayList<>();
@@ -39,8 +39,7 @@ public class ReadRules extends System {
             objectComponentsTable.put(obj, new HashSet<>());
         }
 
-
-        //create list of components that CANNOT be removed
+        // create list of components that CANNOT be removed
         universalComponents.add(ecs.Components.Object.class);
         universalComponents.add(ecs.Components.Position.class);
         universalComponents.add(ecs.Components.Appearance.class);
@@ -48,12 +47,10 @@ public class ReadRules extends System {
         universalComponents.add(ecs.Components.Collision.class);
         universalComponents.add(ecs.Components.Tag.class);
 
-
-
         this.sysMovement = sysMovement;
-        active_rules = new HashSet<String>();
-        valid_rules = new HashSet<String>();
-        componentsTable = new HashMap<String, Component>();
+        active_rules = new HashSet<>();
+        valid_rules = new HashSet<>();
+        componentsTable = new HashMap<>();
         componentsTable.put("STOP", new ecs.Components.Stop());
         componentsTable.put("PUSH", new ecs.Components.Push());
         componentsTable.put("DEFEAT", new ecs.Components.Defeat());
@@ -61,14 +58,14 @@ public class ReadRules extends System {
         componentsTable.put("SINK", new ecs.Components.Sink());
         componentsTable.put("YOU", new ecs.Components.PlayerControlled());
 
-        //ADD YOU RULES
+        // ADD YOU RULES
         for (String obj : objects) {
             for (String comp : components)
 
                 valid_rules.add(obj + "-IS-" + comp);
         }
 
-        //ADD RULES TO CHANGE OBJECTS INTO OTHER OBJECTS
+        // ADD RULES TO CHANGE OBJECTS INTO OTHER OBJECTS
         for (String becomes : objects) {
             for (String obj : objects)
 
@@ -91,6 +88,7 @@ public class ReadRules extends System {
                         new_active_rules.add(rule);
                         if (!active_rules.contains(rule)) {
                             active_rules.add(rule);
+                            audio.playAudioRuleChange();
                             apply_rule(rule);
                         }
                     }
@@ -110,8 +108,6 @@ public class ReadRules extends System {
 
 
     private void checkForRules(Entity entity, double elapsedTime) {
-
-
         var word = entity.get(Text.class);
         if (Objects.equals(word.text, "IS")) {
 
@@ -136,37 +132,31 @@ public class ReadRules extends System {
         StringBuilder col_rule = new StringBuilder("-IS-");
 
         for (var entity : entities.values()) {
-
             if (!entity.contains(Text.class)) continue;
 
             var pos = entity.get(Position.class);
             var text = entity.get(Text.class);
 
-            //find vertical rule
+            // find vertical rule
             if (pos.getY() - 1 == target_y && pos.getX() == target_x) {
-                //word is above
+                // word is above
                 col_rule.append(text.text);
 
             } else if (pos.getY() + 1 == target_y && pos.getX() == target_x) {
-                //word is below
-
+                // word is below
                 col_rule.insert(0, text.text);
             }
 
-            //find horizontal rule
+            // find horizontal rule
             if (pos.getY() == target_y && pos.getX() - 1 == target_x) {
-                //word is to left
-
+                // word is to left
                 row_rule.append(text.text);
 
             } else if (pos.getY() == target_y && pos.getX() + 1 == target_x) {
-                //word is to right
+                // word is to right
                 row_rule.insert(0, text.text);
             }
-
-
         }
-
 
         List<String> rules = new ArrayList<>();
 
@@ -177,7 +167,6 @@ public class ReadRules extends System {
 
     // Called when a new rule is detected
     private void apply_rule(String rule) {
-        out.println(rule);
         String[] parts = rule.split("-");
 
         String objectName = parts[0];  // e.g., "BABA"
@@ -185,16 +174,14 @@ public class ReadRules extends System {
         String newType = parts[2];     // e.g., "ROCK" or "PUSH"
 
         // Case 1: Object gains a new component (e.g., "BABA-IS-PUSH")
-
-
         String transformation = "";
         if (Arrays.asList(components).contains(newType)) {
             Class<? extends Component> componentClass = componentsTable.get(newType).getClass();
             objectComponentsTable.get(objectName).add(componentClass);
         }
+
         // Case 2: Object transforms into another object (e.g., "BABA-IS-ROCK")
         else {
-
             transformation = newType;
             HashSet<Class<? extends Component>> newComponents = new HashSet<>(objectComponentsTable.get(newType));
             objectComponentsTable.put(objectName, newComponents);
@@ -210,7 +197,6 @@ public class ReadRules extends System {
                 var tag = entity.get(ecs.Components.Tag.class);
                 String objectType = tag.name;
 
-                out.println("NOW WORKING WITH -- "+objectType);
                 if (!objectComponentsTable.containsKey(objectType)) continue;
 
                 HashSet<Class<? extends Component>> requiredComponents = objectComponentsTable.get(objectType);
@@ -225,7 +211,6 @@ public class ReadRules extends System {
                                 sysMovement.add(entity);
                             }
 
-                            out.println("Added: " + compClass.getSimpleName() + " to " + objectType);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -237,14 +222,10 @@ public class ReadRules extends System {
 
                 // Remove extra components
                 for (Component comp : allComps) {
-
                     if (!requiredComponents.contains(comp.getClass())) {
                         if (!universalComponents.contains(comp.getClass())) {
                             entity.remove(comp.getClass());
-
-                            if(comp.getClass() == ecs.Components.PlayerControlled.class) {sysMovement.remove(entity.getId());}
-
-                            out.println("Removed: " + comp.getClass().getSimpleName() + " from " + objectType);
+                            if (comp.getClass() == ecs.Components.PlayerControlled.class) {sysMovement.remove(entity.getId());}
                         }
                     }
                 }
@@ -255,6 +236,7 @@ public class ReadRules extends System {
                     GameObjectRegistry.GameObjectInfo info = GameObjectRegistry.getObjectInfo(transformation);
 
                     newTag.name = transformation;
+
                     // Fetch new appearance details from registry
                     Texture newTexture = new Texture(info.getImagePath()); // Get texture for the new type
                     Color newColor = info.getColor(); // Get color for the new type
@@ -262,9 +244,6 @@ public class ReadRules extends System {
                     // Apply the new appearance
                     appearance.image = newTexture;
                     appearance.color = newColor;
-
-                    out.println("Updated Appearance for " + objectType + " -> Texture: " + newTexture + ", Color: " + newColor);
-
                 }
             }
         }

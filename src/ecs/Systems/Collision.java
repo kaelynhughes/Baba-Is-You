@@ -1,9 +1,7 @@
 package ecs.Systems;
 
-import ecs.Components.Appearance;
-import ecs.Components.Movable;
+import ecs.AudioSystem;
 import ecs.Components.Position;
-import ecs.Components.Tag;
 import ecs.Entities.Entity;
 import ecs.ParticleSystem;
 import edu.usu.graphics.Graphics2D;
@@ -13,29 +11,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.System.exit;
-import static java.lang.System.out;
-
 public class Collision extends System {
 
     public interface IDestroy {
         void invoke(Entity entity);
     }
 
-
-
     private final IDestroy destroy;
     private ParticleSystem particleSystem;
     private Graphics2D graphics;
+    private AudioSystem audio;
     public Collision(IDestroy destroy, Renderer renderer) {
         super(ecs.Components.Collision.class,ecs.Components.Position.class);
         this.destroy = destroy;
         this.particleSystem = new ParticleSystem(renderer.getCELL_SIZE(),renderer.getOFFSET_X(),renderer.getOFFSET_Y());
         graphics = renderer.getGraphics();
-        //Collisions will be responsible for particle system since they only occur here
-
-
-
+        this.audio = AudioSystem.getInstance();
+        // Collisions will be responsible for particle system since they only occur here
     }
 
     public boolean canMoveTo(int x, int y){
@@ -43,10 +35,8 @@ public class Collision extends System {
             var position = entity.get(ecs.Components.Position.class);
             if (position.getX() == x && position.getY() == y &&(entity.contains(ecs.Components.Push.class) ||entity.contains(ecs.Components.Stop.class)) ) {
                 return false;
-
             }
         }
-
         return true;
     }
 
@@ -54,31 +44,22 @@ public class Collision extends System {
         for (var entity : entities.values()) {
             var position = entity.get(ecs.Components.Position.class);
 
-            //There is a stop object that should not be moved into
-            if (position.getX() == start_x+x_inc && position.getY() == start_y + y_inc && entity.contains(ecs.Components.Stop.class)){
-
+            // There is a stop object that should not be moved into
+            if (position.getX() == start_x+x_inc && position.getY() == start_y + y_inc && entity.contains(ecs.Components.Stop.class)) {
                 return null;
-
             }
 
-            //recursivly chains together pushable blocks until a stop collision is found
+            // recursively chains together pushable blocks until a stop collision is found
             if (position.getX() == start_x+x_inc && position.getY() == start_y + y_inc  && entity.contains(ecs.Components.Push.class)) {
                 if(!pushables.contains(entity)){
-
-
                     if(getPushables(start_x +x_inc,start_y+y_inc, x_inc, y_inc, pushables) != null){
                         pushables.add(entity);
                     } else return null;
                 }
-
             }
-
-
         }
 
         return pushables;
-
-
     }
 
     /**
@@ -95,39 +76,26 @@ public class Collision extends System {
         for (var entity : entities.values()) {
             for (var entityMovable : movable) {
                 if ( !entityMovable.contains(ecs.Components.Text.class) && collides(entity, entityMovable) && entity != entityMovable) {
-
-                        if (entity.contains(ecs.Components.Sink.class)){
-                            int ent_x = entity.get(Position.class).getX();
-                            int ent_y = entity.get(Position.class).getY();
-
-
-                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 15 , 1.0f,"death");
-                            destroy.invoke(entity);
-                            destroy.invoke(entityMovable);
-
-                        }
-                        else if (entity.contains(ecs.Components.Defeat.class)){
-                            int ent_x = entity.get(Position.class).getX();
-                            int ent_y = entity.get(Position.class).getY();
-                            out.println("defeat collision");
-                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 15 , 1.0f,"death");
-                            destroy.invoke(entityMovable);
-
-                        }
-                        else if (entity.contains(ecs.Components.PlayerControlled.class) && entityMovable.contains(ecs.Components.Win.class)){
-                            int ent_x = entity.get(Position.class).getX();
-                            int ent_y = entity.get(Position.class).getY();
-
-                            particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 25 , 1.5f,"win");
-                            out.println((entity.get(Tag.class).name));
-                            out.println(entityMovable.get(Tag.class).name);
-                            out.println("YOU WON!!");
-
-
-                            //Exit level
-
-                        }
-
+                    if (entity.contains(ecs.Components.Sink.class)){
+                        int ent_x = entity.get(Position.class).getX();
+                        int ent_y = entity.get(Position.class).getY();
+                        particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 15 , 1.0f,"death");
+                        audio.playAudioDeath();
+                        destroy.invoke(entity);
+                        destroy.invoke(entityMovable);
+                    } else if (entity.contains(ecs.Components.Defeat.class)){
+                        int ent_x = entity.get(Position.class).getX();
+                        int ent_y = entity.get(Position.class).getY();
+                        particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 15 , 1.0f,"death");
+                        audio.playAudioDeath();
+                        destroy.invoke(entityMovable);
+                    } else if (entity.contains(ecs.Components.PlayerControlled.class) && entityMovable.contains(ecs.Components.Win.class)){
+                        int ent_x = entity.get(Position.class).getX();
+                        int ent_y = entity.get(Position.class).getY();
+                        particleSystem.generateParticles(ent_x,ent_y,new Vector2f(2.0f, 2.0f), 25 , 1.5f,"win");
+                        audio.playAudioWin();
+                        // Exit level
+                    }
                 }
             }
         }
@@ -145,13 +113,11 @@ public class Collision extends System {
         for (var entity : entities.values()) {
             if (entity.contains(ecs.Components.Collision.class) && entity.contains(ecs.Components.Position.class)) {
                 var ePosition = entity.get(ecs.Components.Position.class);
-
-                    if (aPosition.getX() == ePosition.getX() && aPosition.getY() == ePosition.getY()) {
-                        return true;
-                    }
+                if (aPosition.getX() == ePosition.getX() && aPosition.getY() == ePosition.getY()) {
+                    return true;
+                }
             }
         }
-
         return false;
     }
 
@@ -185,13 +151,9 @@ public class Collision extends System {
         // A movable can collide with itself: Check segment against the rest
         if (a != b) {
             // Have to skip the first segment, that's why using a counted for loop
-
             return aPosition.getX() == bPosition.getX() && aPosition.getY() == bPosition.getY();
-
-
         }
 
         return false;
     }
-
 }
