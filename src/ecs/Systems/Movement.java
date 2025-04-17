@@ -1,21 +1,21 @@
 package ecs.Systems;
 
+import ecs.AudioSystem;
 import ecs.Components.Movable;
 import ecs.Components.Position;
-import ecs.Components.PlayerInput;
 import ecs.Components.PlayerControlled;
 import ecs.Entities.Entity;
 
 import java.util.ArrayList;
 
-import static java.lang.System.out;
-
 public class Movement extends System {
     Entity controller;
     Collision collisionSystem;
+    AudioSystem audio;
     public Movement(Collision collisionSystem) {
         super(Movable.class, Position.class, PlayerControlled.class);
         this.collisionSystem = collisionSystem;
+        this.audio = AudioSystem.getInstance();
     }
 
     @Override
@@ -23,7 +23,6 @@ public class Movement extends System {
         int i = 0;
         for (var entity : entities.values()) {
             moveEntity(entity, elapsedTime);
-
             i++;
         }
     }
@@ -54,27 +53,22 @@ public class Movement extends System {
         int proposed_x = position.getX()+xIncrement;
         int proposed_y = position.getY()+yIncrement;
 
-        //check if the space is free where we want to go
+        // check if the space is free where we want to go
         if (collisionSystem.canMoveTo(proposed_x, proposed_y)) {
             position.update(xIncrement, yIncrement);
-        } else{
-            //if not, check pushable
+            audio.playAudioMove();
+        } else {
+            // if not, check pushable
             ArrayList<Entity> pushables = collisionSystem.getPushables(position.getX(),position.getY(),xIncrement,yIncrement,new ArrayList<>());
 
-            if(pushables != null){
-                for(var push :  pushables){
+            if (pushables != null) {
+                for (var push :  pushables) {
                     var push_position = push.get(Position.class);
                     push_position.update(xIncrement, yIncrement);
                 }
                 position.update(xIncrement, yIncrement);
+                audio.playAudioMove();
             }
-
-
-
-
-
         }
-        //check if we can push instead
-
     }
 }
